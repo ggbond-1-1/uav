@@ -19,6 +19,7 @@ from django.urls import path
 
 from django.contrib import admin
 from django.urls import path, include
+from users.views import home
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,4 +27,5 @@ urlpatterns = [
     path('drones/', include(('drones.urls', 'drones'), namespace='drones')),
     path('goods/', include(('goods.urls', 'goods'), namespace='goods')),
     path('logistics/', include(('logistics.urls', 'logistics'), namespace='logistics')),
+    path('', home, name='home'),
 ]

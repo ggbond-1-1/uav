@@ -2,9 +2,6 @@ from django.shortcuts import render
 # drones/views.py
 from django.http import HttpResponse
 
-def drone_list(request):
-    # 这里可以添加你的逻辑代码
-    return HttpResponse("This is the drone list view.")
 # drones/views.py
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -29,3 +26,5 @@ def drone_register(request):
         form = DroneForm()
     return render(request, 'drones/drone_register.html', {'form': form})
 # Create your views here.
+def drone_list(request):
+    return HttpResponse("This is the drone list view.")
