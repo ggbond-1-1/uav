@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无人机监管界面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* 顶部导航栏样式 */
+        .top-navbar {
+            background-color: #007BFF;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-buttons {
+            display: flex;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        .nav-button span {
+            margin-left: 5px;
+        }
+
+        .circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        /* 中间标题栏样式 */
+        .title-bar {
+            background-color: #009688;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #e0f2f1;
+        }
+
+        tr:nth-child(odd) {
+            background-color: white;
+        }
+
+        /* 列表样式 */
+        .list-item {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: white;
+            padding: 10px; /* 增加内边距，让内容显示更美观 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item:nth-child(even) {
+            background-color: #e0f2f1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-navbar">
+        <div>名称</div>
+        <div class="nav-buttons">
+            <div class="nav-button">
+                <span class="circle" style="background-color: #800080;"></span>
+                <span>首页</span>
+            </div>
+            <div class="nav-button">
+                <span class="circle" style="background-color: #800080;"></span>
+                <span>模块一</span>
+            </div>
+            <div class="nav-button">
+                <span class="circle" style="background-color: #800080;"></span>
+                <span>模块二</span>
+            </div>
+            <div class="nav-button">
+                <span class="circle" style="background-color: #800080;"></span>
+                <span>模块三</span>
+            </div>
+        </div>
+    </div>
+    <!-- 中间标题栏 -->
+    <div class="title-bar">
+        无人机监管
+    </div>
+    <!-- 表格区域 -->
+    <table>
+        <thead>
+            <tr>
+                <th>无人机编号</th>
+                <th>任务编号</th>
+                <th>任务状态</th>
+                <th>时间</th>
+                <th>速度</th>
+                <th>高度</th>
+                <th>出发地</th>
+                <th>目的地</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 这里可以通过JavaScript动态添加数据 -->
+        </tbody>
+    </table>
+    <!-- 列表区域 -->
+    <div class="list-container">
+        <!-- 初始的列表项 -->
+        <div class="list-item">
+            <span>1</span>
+            <span></span>
+        </div>
+        <div class="list-item">
+            <span>2</span>
+            <span></span>
+        </div>
+    </div>
+
+    <script>
+        const listContainer = document.querySelector('.list-container');
+        const totalItems = 20; // 总列表项数量
+
+        // 动态生成更多列表项
+        for (let i = 3; i <= totalItems; i++) {
+            const listItem = document.createElement('div');
+            listItem.classList.add('list-item');
+            listItem.innerHTML = `
+                
+            `;
+            listContainer.appendChild(listItem);
+        }
+    </script>
+</body>
+
+</html>

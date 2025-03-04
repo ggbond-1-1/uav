@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理界面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* 顶部导航栏样式 */
+        .top-navbar {
+            background-color: #007BFF;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-buttons {
+            display: flex;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        .nav-button span {
+            margin-left: 5px;
+        }
+
+        .circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        /* 中间标题栏样式 */
+        .title-bar {
+            background-color: #009688;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+
+        /* 列表样式 */
+        .list-item {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: white;
+            padding: 10px; /* 增加内边距，让内容显示更美观 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item:nth-child(even) {
+            background-color: #e0f2f1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-navbar">
+        <div>名称</div>
+        <div class="nav-buttons">
+            <div class="nav-button">
+                <span class="circle" style="background-color: #800080;"></span>
+                <span>首页</span>
+            </div>
+            <div class="nav-button">
+                <span class="circle" style="background-color: #800080;"></span>
+                <span>模块一</span>
+            </div>
+            <div class="nav-button">
+                <span class="circle" style="background-color: #800080;"></span>
+                <span>模块二</span>
+            </div>
+            <div class="nav-button">
+                <span class="circle" style="background-color: #800080;"></span>
+                <span>模块三</span>
+            </div>
+        </div>
+    </div>
+    <!-- 中间标题栏 -->
+    <div class="title-bar">
+        用户管理
+    </div>
+    <!-- 列表区域 -->
+    <div class="list-container">
+        <!-- 初始的列表项 -->
+        <div class="list-item">
+            <span>用户1</span>
+            <span>状态：正常</span>
+        </div>
+        <div class="list-item">
+            <span>用户2</span>
+            <span>状态：冻结</span>
+        </div>
+    </div>
+
+    <script>
+        const listContainer = document.querySelector('.list-container');
+        const totalItems = 20; // 总列表项数量
+
+        // 动态生成更多列表项
+        for (let i = 3; i <= totalItems; i++) {
+            const listItem = document.createElement('div');
+            listItem.classList.add('list-item');
+            listItem.innerHTML = `
+                <span>用户${i}</span>
+                <span>状态：${i % 2 === 0? '正常' : '冻结'}</span>
+            `;
+            listContainer.appendChild(listItem);
+        }
+    </script>
+</body>
+
+</html>
