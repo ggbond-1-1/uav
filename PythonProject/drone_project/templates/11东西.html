@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>物流信息界面</title>
+    <style>
+        /* 全局样式初始化 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #050505, #151515);
+            color: #e0e0e0;
+        }
+
+        /* 头部样式 */
+        header {
+            background: linear-gradient(90deg, #081828, #003d77);
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* 导航按钮样式 */
+        button {
+            padding: 10px 20px;
+            background-color: rgba(0, 123, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: rgba(0, 123, 255, 0.3);
+        }
+
+        /* 上下部分通用样式 */
+        .upper-section, .lower-section {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            color: #333;
+        }
+
+        /* 表单子模块 */
+        .info-subsection {
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-subsection p {
+            margin-bottom: 15px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            color: #333;
+        }
+
+        /* 无人机列表样式 */
+        .drone-list {
+            list-style: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .drone-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #dee2e6;
+        }
+
+        .drone-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        /* 状态提示 */
+        .allocation-status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 30px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* 提交按钮 */
+        #submit-btn {
+            margin: 20px auto;
+            display: block;
+            width: 200px;
+            background: linear-gradient(90deg, #0062cc, #004085);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <span>无人机管理系统</span>
+        <nav class="nav-bar">
+            <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/users/home/'">首页</button>
+            <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/drones/list/'">模块一</button>
+            <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/logistics/detail/'">模块二</button>
+            <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/goods/form/'">模块三</button>
+        </nav>
+    </header>
+
+    <!-- 分配状态提示 -->
+    <div id="allocationStatus" class="allocation-status"></div>
+
+    <!-- 上半部分 - 物流信息 -->
+    <div class="upper-section">
+        <form id="goodsForm" method="post">
+            {% csrf_token %}
+            <div class="info-subsection">
+                <p>发货人：<input type="text" id="sender" name="sender_name" required></p>
+                <p>发货地址：<input type="text" id="senderAddress" name="sender_address" required></p>
+                <p>联系电话：<input type="text" id="senderPhone" name="sender_phone" pattern="\d{11}" required></p>
+                <p>物品类型：
+                    <select id="itemType" name="type" required>
+                        <option value="">请选择</option>
+                        <option value="medical">医疗物资</option>
+                        <option value="food">食品</option>
+                        <option value="equipment">设备</option>
+                    </select>
+                </p>
+                <p>重量（kg）：<input type="number" step="0.1" id="weight" name="weight" required></p>
+                <p>体积（m³）：<input type="number" step="0.01" id="volume" name="volume" required></p>
+            </div>
+            <div class="info-subsection">
+                <p>收货人：<input type="text" id="receiver" name="receiver_name" required></p>
+                <p>收货地址：<input type="text" id="receiverAddress" name="receiver_address" required></p>
+                <p>联系电话：<input type="text" id="receiverPhone" name="receiver_phone" pattern="\d{11}" required></p>
+            </div>
+        </form>
+    </div>
+
+    <!-- 下半部分 - 无人机列表 -->
+    <div class="lower-section">
+        <p>可用无人机：</p>
+        <ul id="droneList" class="drone-list"></ul>
+    </div>
+
+    <button id="submit-btn">提交分配</button>
+
+    <script>
+        // 动态加载无人机列表
+        function loadAvailableDrones() {
+            fetch('/drones/api/available_drones/')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('droneList');
+                    list.innerHTML = data.drones.map(drone =>
+                        `<li class="drone-item" data-id="${drone.id}">
+                            <strong>${drone.serial_number}</strong>
+                            <span>剩余容量: ${drone.remaining_capacity}kg</span>
+                        </li>`
+                    ).join('');
+                });
+        }
+
+        // 处理分配请求
+        async function handleAllocation() {
+            const formData = new FormData(document.getElementById('goodsForm'));
+
+            try {
+                const response = await fetch('/goods/allocate/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                });
+
+                const result = await response.json();
+                const statusDiv = document.getElementById('allocationStatus');
+
+                statusDiv.style.display = 'block';
+                statusDiv.textContent = result.message;
+
+                if (result.status === 'success') {
+                    statusDiv.className = 'allocation-status status-success';
+                    loadAvailableDrones();
+                } else {
+                    statusDiv.className = 'allocation-status status-error';
+                }
+            } catch (error) {
+                console.error('分配请求失败:', error);
+                const statusDiv = document.getElementById('allocationStatus');
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'allocation-status status-error';
+                statusDiv.textContent = '网络请求失败，请稍后重试';
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAvailableDrones();
+            document.getElementById('submit-btn').addEventListener('click', handleAllocation);
+        });
+    </script>
+</body>
+</html>

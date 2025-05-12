@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无人机管理平台登录</title>
+    <style>
+        /* 定义颜色变量 */
+        :root {
+            --black-color: #000000;
+            --deep-blue-color: #001f3f;
+            --white-color: #ffffff;
+            --gray-silver-color: #cccccc;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: url('{% static "1.jpg" %}') no-repeat center center;
+            background-size: 1395px 800px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: var(--black-color);
+        }
+
+        .login-container {
+            background: var(--white-color);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 380px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: var(--deep-blue-color);
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--deep-blue-color);
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-silver-color);
+            border-radius: 5px;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--deep-blue-color);
+            box-shadow: 0 0 5px rgba(0, 31, 63, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--deep-blue-color);
+            color: var(--white-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #001428;
+        }
+
+        .links {
+            margin-top: 15px;
+        }
+
+        .links a {
+            color: var(--deep-blue-color);
+            text-decoration: none;
+            margin: 5px;
+            display: inline-block;
+            transition: 0.3s;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+            color: #001428;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <h2>无人机管理平台登录</h2>
+        <form id="login-form" action="{% url 'users:login' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">登录</button>
+            <div class="links">
+                <a href="{% url 'users:register' %}">没有账号？立即注册</a>
+                <a href="#">忘记密码？找回密码</a>
+            </div>
+        </form>
+    </div>
+<script>
+        const form = document.getElementById('login-form');
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: form.method,
+                body: formData,
+                headers: {
+                    'X-CSRFToken': csrftoken
+                }
+            })
+           .then(response => response.json())
+           .then(data => {
+                if (data.success) {
+                    alert('登录成功！');
+                    window.location.href = "{% url 'users:home' %}";
+                } else {
+                    alert(data.message || '登录失败，请稍后重试。');
+                }
+            })
+           .catch(error => {
+                alert('网络错误，请稍后重试。');
+            });
+        });
+    </script>
+</body>
+
+</html>

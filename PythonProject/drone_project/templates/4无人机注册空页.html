@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的无人机列表</title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #050505, #151515);
+            color: #e0e0e0;
+        }
+
+        /* 顶部导航栏 */
+       .top-navbar {
+            background: linear-gradient(90deg, #081828, #003d77);
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* 导航按钮组 */
+       .nav-buttons {
+            display: flex;
+            gap: 25px;
+        }
+
+        /* 单个导航按钮 */
+       .nav-button button {
+            padding: 10px 20px;
+            background-color: rgba(0, 123, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(29, 78, 131, 0.4);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+       .nav-button button:hover {
+            background-color: rgba(0, 123, 255, 0.3);
+        }
+
+        /* 左侧栏 */
+       .left-sidebar {
+            background-color: rgba(224, 242, 241, 0.5);
+            width: 220px;
+            min-height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+       .sidebar-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+       .sidebar-button:hover {
+            background-color: #f0f0f0;
+            transform: translateX(5px);
+        }
+
+        /* 主内容区 */
+       .main-content {
+            flex: 1;
+            padding: 30px;
+            background-color: white;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin: 20px;
+            color: black; /* 设置主内容区文字颜色为黑色 */
+        }
+
+        /* 表格样式 */
+       .drone-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+       .drone-table th,
+       .drone-table td {
+            padding: 15px;
+            border: 1px solid rgba(26, 64, 105, 0.4);
+            text-align: left;
+        }
+
+       .drone-table th {
+            background-color: rgba(0, 123, 255, 0.2);
+            color: #000000;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+       .drone-table tr:nth-child(even) {
+            background-color: rgba(5, 5, 5, 0.3);
+        }
+
+       .drone-table tr:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        /* 操作按钮 */
+       .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+       .view-button {
+            padding: 8px 15px;
+            background-color: #1f3042;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+        }
+
+       .view-button:hover {
+            background-color: #0056b3;
+        }
+
+       .delete-button {
+            padding: 8px 15px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+       .delete-button:hover {
+            background-color: #bd2130;
+        }
+
+        /* 消息提示 */
+       .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+
+       .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+       .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* 需要输入文字的地方加框 */
+        p {
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-navbar">
+        <div>无人机管理系统</div>
+        <div class="nav-buttons">
+            <div class="nav-button">
+                <button onclick="window.location.href='http://127.0.0.1:8000/users/home'">首页</button>
+            </div>
+            <div class="nav-button">
+                <button onclick="window.location.href='#'">模块一</button>
+            </div>
+            <div class="nav-button">
+                <button onclick="window.location.href='http://127.0.0.1:8000/logistics/detail/'">模块二</button>
+            </div>
+            <div class="nav-button">
+                <button onclick="window.location.href='http://127.0.0.1:8000/goods/form/'">模块三</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主体部分 -->
+    <div style="display: flex;">
+        <!-- 左侧栏 -->
+        <div class="left-sidebar">
+            <button class="sidebar-button" onclick="window.location.href='{% url 'drones:register' %}'">注册我的无人机</button>
+            <button class="sidebar-button" onclick="window.location.href='http://127.0.0.1:8000/users/manage/'">个人信息管理</button>
+            <button class="sidebar-button" onclick="window.location.href='{% url 'drones:list' %}'">管理我的无人机</button>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <h2>我的无人机列表</h2>
+
+            <!-- 消息提示 -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- 无人机表格 -->
+            <table class="drone-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>型号</th>
+                        <th>注册时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for drone in drones %}
+                        <tr>
+                            <td>{{ drone.id }}</td>
+                            <td>{{ drone.model }}</td>
+                            <td>{{ drone.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'drones:detail' pk=drone.pk %}" class="view-button">查看详情</a>
+                                    <form method="post" action="{% url 'drones:delete' pk=drone.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="delete-button">删除</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #666;">暂无注册的无人机</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>    
