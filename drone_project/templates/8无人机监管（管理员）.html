@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无人机监管界面</title>
+    <style>
+        /* 全局样式初始化 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #050505, #151515);
+            color: #e0e0e0;
+        }
+
+        /* 顶部导航栏样式 */
+       .top-navbar {
+            background: linear-gradient(90deg, #081828, #003d77);
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* 导航按钮组 */
+       .nav-buttons {
+            display: flex;
+            gap: 25px;
+        }
+
+        /* 单个导航按钮 */
+       .nav-button button {
+            padding: 10px 20px;
+            background-color: rgba(0, 123, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(8, 46, 86, 0.4);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+       .nav-button button:hover {
+            background-color: rgba(0, 123, 255, 0.3);
+        }
+
+        /* 中间标题栏样式 */
+       .title-bar {
+            background: linear-gradient(90deg, #009688, #00bfa5);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            padding: 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: rgba(0, 123, 255, 0.2);
+            color: #00ffcc;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(224, 242, 241, 0.8);
+        }
+
+        tr:nth-child(odd) {
+            background-color: white;
+        }
+
+        tr:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        /* 列表样式 */
+       .list-container {
+            margin: 20px 0;
+        }
+
+       .list-item {
+            width: 100%;
+            border: 1px solid rgba(10, 66, 125, 0.4);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            background-color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+       .list-item:nth-child(even) {
+            background-color: rgba(224, 242, 241, 0.8);
+        }
+
+       .list-item:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+       /* 去除顶部紫色小矩形框 */
+       .circle {
+            display: none;
+        }
+
+       /* 调整配色 */
+       .top-navbar,
+       .title-bar,
+       table th,
+       .list-item {
+            color: white;
+            background-color: rgba(0, 123, 255, 0.2);
+        }
+
+       table td,
+       .list-item:nth-child(even) {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+       tr:hover,
+       .list-item:hover {
+            background-color: rgba(0, 123, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-navbar">
+        <div>名称</div>
+        <div class="nav-buttons">
+            <div class="nav-button">
+                <button onclick="">首页</button>
+            </div>
+            <div class="nav-button">
+                <button onclick="">模块一</button>
+            </div>
+            <div class="nav-button">
+                <button onclick="">模块二</button>
+            </div>
+            <div class="nav-button">
+                <button onclick="">模块三</button>
+            </div>
+        </div>
+    </div>
+    <!-- 中间标题栏 -->
+    <div class="title-bar">
+        无人机监管
+    </div>
+    <!-- 表格区域 -->
+    <table>
+        <thead>
+            <tr>
+                <th>无人机编号</th>
+                <th>任务编号</th>
+                <th>任务状态</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 这里可以通过JavaScript动态添加数据 -->
+        </tbody>
+    </table>
+    <!-- 列表区域 -->
+    <div class="list-container">
+        <!-- 初始的列表项 -->
+        <div class="list-item">
+            <span>1</span>
+            <span></span>
+        </div>
+        <div class="list-item">
+            <span>2</span>
+            <span></span>
+        </div>
+    </div>
+
+    <script>
+        const listContainer = document.querySelector('.list-container');
+        const totalItems = 20; // 总列表项数量
+
+        // 动态生成更多列表项
+        for (let i = 3; i <= totalItems; i++) {
+            const listItem = document.createElement('div');
+            listItem.classList.add('list-item');
+            listItem.innerHTML = `
+                <span>${i}</span>
+                <span></span>
+            `;
+            listContainer.appendChild(listItem);
+        }
+    </script>
+</body>
+
+</html>    

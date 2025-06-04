@@ -1,0 +1,272 @@
+<!-- uav/PythonProject/drone_project/templates/3首页.html -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>界面设计草图实现</title>
+    <style>
+        /* 全局样式初始化 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #050505, #151515);
+            color: #e0e0e0;
+        }
+
+        /* 顶部导航栏样式 */
+       .top-navbar {
+            background: linear-gradient(90deg, #081828, #003d77);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 25px;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+       .nav-title {
+            color: #ffffff;
+            font-size: 30px;
+            font-weight: bold;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+            letter-spacing: 1.2px;
+        }
+
+       .nav-buttons {
+            display: flex;
+        }
+
+       .nav-button {
+            display: flex;
+            align-items: center;
+            color: white;
+            margin-left: 25px;
+            cursor: pointer;
+            font-size: 19px;
+            transition: all 0.3s ease;
+            position: relative;
+            border-radius: 8px;
+            padding: 8px 15px; /* 添加内边距 */
+            background-color: rgba(0, 123, 255, 0.2); /* 添加背景颜色 */
+            border: 1px solid rgba(0, 123, 255, 0.4); /* 添加边框 */
+        }
+
+       .nav-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background-color: rgba(0, 255, 204, 0.2);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+
+       .nav-button:hover {
+            color: #00ffcc;
+        }
+
+       .nav-button:hover::before {
+            width: 100%;
+        }
+
+       .nav-button.circle {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-right: 12px;
+            box-shadow: 0 0 10px rgba(128, 0, 128, 0.8);
+            animation: pulse 1.5s infinite;
+        }
+
+       .nav-button:nth-child(1).circle {
+            background-color: #800080;
+        }
+
+       .nav-button:nth-child(2).circle {
+            background-color: #800080;
+        }
+
+       .nav-button:nth-child(3).circle {
+            background-color: #800080;
+        }
+
+       .nav-button:nth-child(4).circle {
+            background-color: #800080;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* 内容区域样式 */
+       .content {
+            padding: 60px;
+        }
+
+       .section {
+            margin-bottom: 130px;
+            background: rgba(5, 5, 5, 0.5);
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 0 25px rgba(0, 123, 255, 0.3);
+            backdrop-filter: blur(6px);
+            transition: all 0.3s ease;
+        }
+
+       .section:hover {
+            transform: translateY(-7px);
+            box-shadow: 0 0 35px rgba(0, 123, 255, 0.5);
+        }
+
+       .section-title {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #00ffcc;
+            text-shadow: 0 0 12px rgba(0, 255, 204, 0.6);
+            letter-spacing: 0.8px;
+        }
+
+        /* 表格样式 */
+       .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+       .table th,
+       .table td {
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            padding: 15px;
+            text-align: center;
+        }
+
+       .table th {
+            background-color: rgba(0, 123, 255, 0.2);
+            color: #00ffcc;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+       .table tr:nth-child(even) {
+            background-color: rgba(5, 5, 5, 0.3);
+        }
+
+       .table tr:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        /* 需要输入文字的地方加框 */
+        p {
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-navbar">
+        <div class="nav-title">名称</div>
+        <div class="nav-buttons">
+            <div class="nav-button">
+                <div class="circle"></div>
+                <a href="http://127.0.0.1:8000/users/home/" style="color: white;">首页</a>
+            </div>
+            <div class="nav-button">
+                <div class="circle"></div>
+                <a href="http://127.0.0.1:8000/drones/list/" style="color: white;">模块一</a>
+            </div>
+            <div class="nav-button">
+                <div class="circle"></div>
+                <a href="http://127.0.0.1:8000/logistics/detail/" style="color: white;">模块二</a>
+            </div>
+            <div class="nav-button">
+                <div class="circle"></div>
+                <a href="http://127.0.0.1:8000/goods/form/" style="color: white;">模块三</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="content">
+        <!-- 用户基本信息板块 -->
+        <div class="section">
+            <div class="section-title">用户基本信息</div>
+            <p>用户名: {{ username }}</p>
+            <p>密码: {{ password }}</p>
+        </div>
+
+        <!-- 任务日志板块 -->
+        <div class="section">
+            <div class="section-title">任务日志</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>任务执行时间</th>
+                        <th>任务状态</th>
+                        <th>详情</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in task_info_list %}  {# 仅保留一个循环 #}
+                        <tr>
+                            <td>{{ task.index }}</td>
+                            <td>{{ task.scheduled_time|default:"无计划时间" }}</td>
+                            <td>
+                                {% if task.status == 'delivered' %}  {# 假设模型中状态码为 delivered #}
+                                    <span style="color: green;">已完成</span>
+                                {% else %}
+                                    <span style="color: orange;">{{ task.get_status_display|default:task.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>待添加详情</td>
+                        </tr>
+                    {% endfor %}  {# 唯一的 endfor 标签 #}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 消息通知板块 -->
+        <div class="section">
+            <div class="section-title">消息通知</div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>消息时间</th>
+                        <th>消息内容</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 可后续通过 JavaScript 动态添加表格数据 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

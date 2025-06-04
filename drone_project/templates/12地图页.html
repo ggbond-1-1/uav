@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>项目管理系统</title>
+    <style>
+        /* 全局样式初始化 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #050505, #151515);
+        }
+
+        /* 顶部导航栏 */
+       .nav-bar {
+            background: linear-gradient(90deg, #081828, #003d77);
+            padding: 1.2rem 2.5rem;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+       .nav-button {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            transition: color 0.3s;
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            border-radius: 8px;
+            margin-left: 15px;
+        }
+
+       .nav-button:hover {
+            background-color: rgba(0, 123, 255, 0.2);
+        }
+
+        /* 主体容器 */
+       .container {
+            display: flex;
+            margin-top: 30px;
+            padding: 0 30px;
+            gap: 30px;
+        }
+
+        /* 左侧信息面板 */
+       .sidebar {
+            width: 300px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+       .section-title {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+       .info-item {
+            margin-bottom: 25px;
+            color: black;
+        }
+
+        /* 右侧坐标区域 */
+       .main-content {
+            flex: 1;
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+       .coordinate-area {
+            width: 100%;
+            height: 600px;
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            border-radius: 8px;
+            background-color: #fafafa;
+            position: relative;
+        }
+
+       .main-content h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部导航 -->
+    <nav class="nav-bar">
+        <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/users/home/'">首页</button>
+        <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/drones/list/'">模块一</button>
+        <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/logistics/detail/'">模块二</button>
+        <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/goods/form/'">模块三</button>
+    </nav>
+
+    <!-- 主体内容 -->
+    <div class="container">
+        <!-- 左侧信息栏 -->
+        <aside class="sidebar">
+            <div class="info-item">
+                <h3 class="section-title">名称</h3>
+                <div>项目名称：示例项目</div>
+            </div>
+
+            <div class="info-item">
+                <h3 class="section-title">任务详情与操作</h3>
+                <div>当前任务：未选择</div>
+                <!-- 这里可以添加操作按钮 -->
+            </div>
+        </aside>
+
+        <!-- 右侧主内容 -->
+        <main class="main-content">
+            <h2>二维坐标展示区域</h2>
+            <div class="coordinate-area">
+                <!-- 这里可以添加坐标系或其他可视化内容 -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 可以在这里添加交互逻辑
+        document.querySelectorAll('.nav-button').forEach(button => {
+            button.addEventListener('click', function () {
+                // 处理导航按钮点击事件
+                console.log('切换到：', this.textContent);
+            });
+        });
+    </script>
+</body>
+
+</html>

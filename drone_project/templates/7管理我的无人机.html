@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无人机详情管理</title>
+    <style>
+        /* 全局样式初始化 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #050505, #151515);
+            color: #333; /* 整体文字颜色设为黑色系 */
+        }
+
+        /* 顶部导航栏样式 */
+       .top-navbar {
+            background: linear-gradient(90deg, #081828, #003d77);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+       .nav-buttons {
+            display: flex;
+        }
+
+       .nav-button {
+            display: flex;
+            align-items: center;
+            margin-left: 20px;
+            cursor: pointer;
+        }
+
+       .circle {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        /* 左侧栏样式 */
+       .left-sidebar {
+            background-color: rgba(224, 242, 241, 0.5);
+            width: 220px;
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+       .sidebar-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+       .sidebar-button:hover {
+            background-color: #f0f0f0;
+            transform: translateX(5px);
+        }
+
+        /* 详情内容区样式 */
+       .drone-detail {
+            max-width: 900px; /* 宽度增大到900px */
+            margin: 20px auto;
+            padding: 25px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+       .detail-item {
+            margin-bottom: 25px;
+            font-size: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 12px;
+            display: flex;
+        }
+
+       .detail-item label {
+            width: 200px;
+            color: #666;
+            vertical-align: top;
+        }
+
+       .detail-item span {
+            flex: 1;
+            font-weight: normal;
+            color: #333;
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            border-radius: 8px;
+            padding: 6px 8px;
+        }
+
+        /* 操作按钮组样式 */
+       .action-buttons {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+       .delete-button {
+            padding: 12px 30px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+       .delete-button:hover {
+            background-color: #bb2d3b;
+        }
+
+        /* 消息提示样式 */
+       .message-container {
+            margin-bottom: 25px;
+        }
+
+       .error-message {
+            color: #dc3545;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: #f8d7da;
+            font-size: 16px;
+        }
+
+       .success-message {
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: #d4edda;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-navbar">
+        <div>无人机管理系统</div>
+        <div class="nav-buttons">
+            <div class="nav-button">
+                <button class="circle" style="background-color: #800080;" onclick="window.location.href='{% url 'drones:list' %}'"></button>
+                <button>返回列表</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主体部分 -->
+    <div style="display: flex;">
+        <!-- 左侧栏 -->
+        <div class="left-sidebar">
+            <button class="sidebar-button" onclick="window.location.href='{% url 'drones:register' %}'">注册新设备</button>
+            <button class="sidebar-button" onclick="window.location.href='{% url 'drones:list' %}'">返回列表</button>
+        </div>
+
+        <!-- 无人机详细信息 -->
+        <div class="drone-detail">
+            <!-- 消息提示 -->
+            <div class="message-container">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="{% if message.tags %}{{ message.tags }}-message{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <h2>无人机详细信息（序列号：{{ drone.serial_number }}）</h2>
+
+            <!-- 设备信息 -->
+            <div class="detail-item">
+                <label>设备型号：</label>
+                <span>{{ drone.model }}</span>
+            </div>
+            <div class="detail-item">
+                <label>制造商：</label>
+                <span>{{ drone.manufacturer }}</span>
+            </div>
+            <div class="detail-item">
+                <label>采购日期：</label>
+                <span>{{ drone.purchase_date|date:"Y-m-d" }}</span>
+            </div>
+            <div class="detail-item">
+                <label>质保到期：</label>
+                <span>{{ drone.warranty_expiry|date:"Y-m-d" }}</span>
+            </div>
+            <div class="detail-item">
+                <label>最大起飞重量：</label>
+                <span>{{ drone.max_takeoff_weight }} kg</span>
+            </div>
+            <div class="detail-item">
+                <label>最大飞行速度：</label>
+                <span>{{ drone.max_flight_speed }} m/s</span>
+            </div>
+            <div class="detail-item">
+                <label>续航时间：</label>
+                <span>{{ drone.flight_time }} 分钟</span>
+            </div>
+            <div class="detail-item">
+                <label>当前状态：</label>
+                <span>{{ drone.get_current_status_display }}</span>
+            </div>
+
+            <!-- 删除操作 -->
+            <div class="action-buttons">
+                <form method="post" action="{% url 'drones:delete' pk=drone.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-button">删除该设备</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

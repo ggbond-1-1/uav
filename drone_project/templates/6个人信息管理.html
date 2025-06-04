@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无人机管理系统界面</title>
+    <style>
+        /* 全局样式初始化 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #050505, #151515);
+            color: #e0e0e0;
+        }
+
+        /* 顶部导航栏样式 */
+       .top-navbar {
+            background: linear-gradient(90deg, #081828, #003d77);
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* 导航按钮组 */
+       .nav-buttons {
+            display: flex;
+            gap: 25px;
+        }
+
+        /* 单个导航按钮 */
+       .nav-button button {
+            padding: 10px 20px;
+            background-color: rgba(0, 123, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+       .nav-button button:hover {
+            background-color: rgba(0, 123, 255, 0.3);
+        }
+
+       .nav-button span {
+            margin-left: 5px;
+        }
+
+       .circle {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        /* 左侧栏样式 */
+       .left-sidebar {
+            background-color: rgba(224, 242, 241, 0.5);
+            width: 220px;
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+       .sidebar-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+       .sidebar-button:hover {
+            background-color: #f0f0f0;
+            transform: translateX(5px);
+        }
+
+        /* 右侧主内容区样式 */
+       .main-content {
+            flex: 1;
+            padding: 30px;
+            background-color: white;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin: 20px;
+            color: black;
+        }
+
+       .form-item {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+       .form-item label {
+            display: inline-block;
+            width: 100px;
+        }
+
+       .form-item input {
+            width: 300px;
+            height: 30px;
+            border: 1px solid rgba(0, 123, 255, 0.4);
+            border-radius: 8px;
+            background: transparent;
+            font-size: 18px;
+            padding: 0 10px;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+       .form-item input:focus {
+            border-color: #007BFF;
+            outline: none;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+        }
+
+       .submit-button {
+            padding: 10px 20px;
+            background-color: #0b2744;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+       .submit-button:hover {
+            background-color: #0056b3;
+        }
+
+       .arrow {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 8px solid #000;
+            margin-left: 10px;
+            display: none; /* 默认隐藏箭头 */
+        }
+
+       .form-item input:focus +.arrow {
+            display: inline-block; /* 输入框聚焦时显示箭头 */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-navbar">
+        <div>无人机管理系统</div>
+        <div class="nav-buttons">
+            <div class="nav-button">
+                <button onclick="window.location.href='http://127.0.0.1:8000/users/home/'">首页</button>
+            </div>
+            <div class="nav-button">
+                <button onclick="window.location.href='http://127.0.0.1:8000/drones/list/'">模块一</button>
+            </div>
+            <div class="nav-button">
+                <button onclick="window.location.href='http://127.0.0.1:8000/logistics/detail/'">模块二</button>
+            </div>
+            <div class="nav-button">
+                <button onclick="window.location.href='http://127.0.0.1:8000/goods/form/'">模块三</button>
+            </div>
+        </div>
+    </div>
+    <!-- 主体部分 -->
+    <div style="display: flex;">
+        <!-- 左侧栏 -->
+        <div class="left-sidebar">
+            <button class="sidebar-button" onclick="window.location.href='http://127.0.0.1:8000/drones/register/'">注册我的无人机</button>
+            <button class="sidebar-button" onclick="window.location.href='http://127.0.0.1:8000/users/manage/'">个人信息管理</button>
+            <button class="sidebar-button" onclick="window.location.href='http://127.0.0.1:8000/drones/detail/'">管理我的无人机</button>
+        </div>
+        <!-- 右侧主内容区 -->
+        <div class="main-content">
+            <form method="post" action="{% url 'users:manage' %}">
+                {% csrf_token %}
+                <div class="form-item">
+                    <label>账户名：</label>
+                    <input type="text" name="username" value="{{ user.username }}" placeholder="">
+                    <span class="arrow"></span>
+                </div>
+                <div class="form-item">
+                    <label>密码：</label>
+                    <input type="password" name="password" value="{{ masked_password }}" placeholder="" readonly>
+                    <span class="arrow"></span>
+                </div>
+                <div class="form-item">
+                    <label>电话：</label>
+                    <input type="text" name="phone" value="{{ user.phone_number }}" placeholder="">
+                    <span class="arrow"></span>
+                </div>
+                <button class="submit-button" type="submit">修改信息</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

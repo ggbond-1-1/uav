@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无人机物流平台</title>
+    <style>
+        /* 全局样式初始化 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* 使用图片作为背景 */
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #e0e0e0;
+        }
+
+        /* 横幅样式 */
+       .banner {
+            background: linear-gradient(90deg, #395b80, #143c79);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            font-size: 30px;
+            position: relative;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+        }
+
+        /* 容器样式 */
+       .container {
+            display: flex;
+            padding: 30px;
+            gap: 30px;
+        }
+
+        /* 左侧面板样式 */
+       .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 右侧面板样式 */
+       .right-panel {
+            flex: 1;
+        }
+
+        /* 各个板块样式 */
+       .section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+       .section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+       .section p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 登录按钮样式 */
+       .login-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 12px 25px;
+            background-color: rgba(0, 123, 255, 0.2);
+            color: white;
+            /* 将边框线改为黑色 */
+            border: 1px solid black; 
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+       .login-button:hover {
+            background-color: rgba(0, 123, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="banner">
+        无人机物流平台
+        <a href="/users/login/" class="login-button">前往登录</a> <!-- 添加登录按钮 -->
+    </div>
+    <div class="container">
+        <div class="left-panel">
+            <div class="section" id="introduction">
+                <h2>平台介绍</h2>
+                <p>这里是无人机物流平台的介绍内容，我们致力于为用户提供高效、便捷、安全的物流服务。通过先进的无人机技术，实现快速配送，满足您的各种需求。</p>
+            </div>
+            <div class="section" id="announcement">
+                <h2>活动公告</h2>
+                <p>最新的平台活动和公告将在这里展示，敬请关注我们的动态，参与丰富多样的活动，获取更多福利和优惠。</p>
+            </div>
+            <div class="section" id="policy">
+                <h2>相关政策</h2>
+                <p>无人机物流相关的政策法规信息，我们严格遵守各项规定，确保飞行安全和合法合规。了解更多政策详情，保障您的权益。</p>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="section" id="ranking">
+                <h2>排行（飞行里程）</h2>
+                <p>无人机飞行里程排名将在这里展示，看看哪些无人机在我们的平台上表现出色，成为飞行里程的佼佼者。</p>
+            </div>
+            <div class="section" id="extra-info">
+                <h2>其他信息</h2>
+                <p>除了飞行里程排行，我们还会在此展示一些其他有用的信息，如热门航线、用户评价等，帮助您更好地了解和使用我们的平台。</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
