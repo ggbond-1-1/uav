@@ -9,6 +9,7 @@ from utils.allocation import allocate_goods
 from django.views.decorators.http import require_http_methods, require_POST
 from django.core.exceptions import ValidationError
 import logging
+from django.contrib import messages
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +96,8 @@ def assign_goods(request, drone_pk):
 
     return JsonResponse({"status": "error", "message": "没有符合条件的待分配货物"}, status=404)
 
+logger = logging.getLogger(__name__)
+
 @require_http_methods(["POST"])
 def allocate_drone(request):
     try:
@@ -128,6 +131,17 @@ def allocate_drone(request):
         # 重新获取最新状态
         goods.refresh_from_db()
         if goods.drone:
+            # 更新无人机任务分配次数
+            drone = goods.drone
+            drone.task_count = 0
+            drone.task_count += 1
+            drone.save()
+
+            if drone.task_count >= 1:
+                # 创建警告消息
+                message_text = f"无人机 {drone.serial_number} 已被分配任务超过10次,请关注!"
+                messages.warning(request, message_text)
+
             logger.info(f"货物 {goods.id} 成功分配到无人机 {goods.drone.serial_number}")
             return JsonResponse({
                 'status': 'success',

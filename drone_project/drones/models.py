@@ -21,6 +21,11 @@ class Drone(models.Model):
     current_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_stock')
     total_flight_time = models.IntegerField(default=0)
     current_load = models.FloatField(default=0)  # 新增当前负载字段
+    return_time = models.DateTimeField(null=True, blank=True)
+    serial_number = models.CharField(max_length=100, unique=True)
+    task_count = models.IntegerField(default=0)
+    def __str__(self):
+        return self.serial_number
 
     @property
     def remaining_capacity(self):

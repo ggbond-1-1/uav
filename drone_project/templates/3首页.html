@@ -182,6 +182,24 @@
             padding: 10px 15px;
             margin-bottom: 15px;
         }
+
+        /* 新增按钮样式 */
+       .detail-btn {
+            display: inline-block;
+            background-color: rgba(0, 123, 255, 0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 123, 255, 0.4);
+        }
+
+       .detail-btn:hover {
+            background-color: rgba(0, 123, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.6);
+        }
     </style>
 </head>
 
@@ -242,7 +260,9 @@
                                     <span style="color: orange;">{{ task.get_status_display|default:task.status }}</span>
                                 {% endif %}
                             </td>
-                            <td>待添加详情</td>
+                            <td>
+                                <a href="http://127.0.0.1:8000/logistics/detail/" class="detail-btn">查看详情</a>
+                            </td>
                         </tr>
                     {% endfor %}  {# 唯一的 endfor 标签 #}
                 </tbody>
@@ -262,7 +282,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- 可后续通过 JavaScript 动态添加表格数据 -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ message.timestamp|date:"Y-m-d H:i" }}</td>
+                                <td>{{ message }}</td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
                 </tbody>
             </table>
         </div>
