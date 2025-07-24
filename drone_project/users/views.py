@@ -43,12 +43,25 @@ def home(request):
         print(f"查询到 {tasks.count()} 条记录")
         task_info_list = []
         for index, task in enumerate(tasks, start=1):
+            # 新增：获取无人机序列号和ID（处理未分配情况）
+            drone_serial = task.drone.serial_number if task.drone else '-'
+            drone_id = task.drone.id if task.drone else '-'
+            
+            # 获取起点和终点地址（假设Goods模型中有sender_address和receiver_address字段）
+            sender_address = task.sender_address if hasattr(task, 'sender_address') else '未知'
+            receiver_address = task.receiver_address if hasattr(task, 'receiver_address') else '未知'
+            
             task_info = {
                 'index': index,
                 'scheduled_time': task.scheduled_time.strftime(
                     '%Y-%m-%d %H:%M') if task.scheduled_time else '无计划时间',
                 'status': task.get_status_display(),
                 'drone_model': task.drone.model if task.drone else '未分配',
+                # 无人机序列号（用户可见的唯一标识）
+                'drone_serial': drone_serial,
+                # 起点和终点地址
+                'sender_address': sender_address,
+                'receiver_address': receiver_address,
             }
             task_info_list.append(task_info)
 

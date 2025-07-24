@@ -1,144 +1,390 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
-<head>
-    <meta charset="UTF-8">
-    <title>项目管理系统</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>无人机路线规划</title>
     <style>
-        /* 全局样式初始化 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #050505, #151515);
-        }
-
-        /* 顶部导航栏 */
-       .nav-bar {
-            background: linear-gradient(90deg, #081828, #003d77);
-            padding: 1.2rem 2.5rem;
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: flex-end;
-        }
-
-       .nav-button {
-            padding: 0.6rem 1.2rem;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-size: 18px;
-            color: white;
-            transition: color 0.3s;
-            border: 1px solid rgba(0, 123, 255, 0.4);
-            border-radius: 8px;
-            margin-left: 15px;
-        }
-
-       .nav-button:hover {
-            background-color: rgba(0, 123, 255, 0.2);
-        }
-
-        /* 主体容器 */
-       .container {
-            display: flex;
-            margin-top: 30px;
-            padding: 0 30px;
-            gap: 30px;
-        }
-
-        /* 左侧信息面板 */
-       .sidebar {
-            width: 300px;
-            background-color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-       .section-title {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-       .info-item {
-            margin-bottom: 25px;
-            color: black;
-        }
-
-        /* 右侧坐标区域 */
-       .main-content {
-            flex: 1;
-            background-color: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-       .coordinate-area {
-            width: 100%;
-            height: 600px;
-            border: 1px solid rgba(0, 123, 255, 0.4);
-            border-radius: 8px;
-            background-color: #fafafa;
-            position: relative;
-        }
-
-       .main-content h2 {
-            color: #333;
-            margin-bottom: 20px;
-        }
+      body {
+        background: #f6f7fa;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .nav-bar {
+        background: linear-gradient(90deg, #081828, #003d77);
+        padding: 1.2rem 2.5rem;
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.06);
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+      }
+      .nav-button {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+        color: white;
+        transition: color 0.3s;
+        border: 1px solid rgba(0, 123, 255, 0.4);
+        border-radius: 8px;
+        margin-left: 15px;
+      }
+      .nav-button:hover {
+        background-color: rgba(0, 123, 255, 0.2);
+      }
+      .page-title {
+        margin-top: 36px;
+        margin-bottom: 24px;
+        font-size: 38px;
+        font-weight: 700;
+        color: #223366;
+        letter-spacing: 2px;
+        text-align: center;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      }
+      .map-container {
+        background: #fff;
+        border: 10px solid #111;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+        position: relative;
+      }
+      .map-container img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+      .route-info {
+        margin-top: 20px;
+        font-size: 18px;
+        color: #333;
+        background: #e9f5ff;
+        padding: 10px 20px;
+        border-radius: 8px;
+      }
+      .drone-info {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #666;
+        background: #f0f8ff;
+        padding: 8px 15px;
+        border-radius: 6px;
+        max-width: 600px;
+        white-space: pre-line;
+      }
+      .control-panel {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .control-button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+      }
+      .start-tracking {
+        background: #28a745;
+        color: white;
+      }
+      .stop-tracking {
+        background: #dc3545;
+        color: white;
+      }
+      .clear-paths {
+        background: #6c757d;
+        color: white;
+      }
+      .drone-path {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 500;
+        background: transparent;
+      }
     </style>
-</head>
-
-<body>
-    <!-- 顶部导航 -->
+  </head>
+  <body>
+    <!-- 顶部菜单栏 -->
     <nav class="nav-bar">
-        <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/users/home/'">首页</button>
-        <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/drones/list/'">模块一</button>
-        <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/logistics/detail/'">模块二</button>
-        <button class="nav-button" onclick="window.location.href='http://127.0.0.1:8000/goods/form/'">模块三</button>
+      <button class="nav-button" onclick="window.location.href='/users/home/'">
+        首页
+      </button>
+      <button class="nav-button" onclick="window.location.href='/drones/list/'">
+        模块一
+      </button>
+      <button
+        class="nav-button"
+        onclick="window.location.href='/logistics/detail/'"
+      >
+        模块二
+      </button>
+      <button class="nav-button" onclick="window.location.href='/goods/form/'">
+        模块三
+      </button>
+      <button
+        class="nav-button"
+        onclick="window.location.href='/users/flight/'"
+      >
+        模块四
+      </button>
     </nav>
 
-    <!-- 主体内容 -->
-    <div class="container">
-        <!-- 左侧信息栏 -->
-        <aside class="sidebar">
-            <div class="info-item">
-                <h3 class="section-title">名称</h3>
-                <div>项目名称：示例项目</div>
-            </div>
+    <div class="page-title">无人机路线规划</div>
 
-            <div class="info-item">
-                <h3 class="section-title">任务详情与操作</h3>
-                <div>当前任务：未选择</div>
-                <!-- 这里可以添加操作按钮 -->
-            </div>
-        </aside>
+    <!-- 显示当前路径信息 -->
+    <div class="route-info" id="route-info">正在加载路径信息...</div>
+    <!-- 无人机信息显示 -->
+    <div class="drone-info" id="drone-info">等待无人机数据...</div>
 
-        <!-- 右侧主内容 -->
-        <main class="main-content">
-            <h2>二维坐标展示区域</h2>
-            <div class="coordinate-area">
-                <!-- 这里可以添加坐标系或其他可视化内容 -->
-            </div>
-        </main>
+    <!-- 控制面板 -->
+
+    <!-- 隐藏起点终点选择控件 -->
+    <div style="display: none">
+      <label>起点：</label>
+      <select id="start-point">
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+      </select>
+      <label>终点：</label>
+      <select id="goal-point">
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+      </select>
+      <button onclick="updatePathImage()">规划路径</button>
+    </div>
+
+    <div class="map-container">
+      <img id="path-image" src="" style="width: 100%; max-width: 600px" />
+      <canvas id="drone-path" class="drone-path"></canvas>
     </div>
 
     <script>
-        // 可以在这里添加交互逻辑
-        document.querySelectorAll('.nav-button').forEach(button => {
-            button.addEventListener('click', function () {
-                // 处理导航按钮点击事件
-                console.log('切换到：', this.textContent);
-            });
-        });
-    </script>
-</body>
+        console.log("我是地图页自己的JS代码！");
+      // 全局变量
+      let trackingInterval = null;
+      let dronePaths = new Map();
+      let pathCtx = null;
 
+      // 解析URL参数
+      function getUrlParam(name) {
+        const param = new URLSearchParams(window.location.search).get(name);
+        return param;
+      }
+
+      // 初始化canvas
+      function initCanvas() {
+        const pathCanvas = document.getElementById("drone-path");
+        const pathImage = document.getElementById("path-image");
+        pathImage.onload = function () {
+          pathCanvas.width = pathImage.offsetWidth;
+          pathCanvas.height = pathImage.offsetHeight;
+          pathCtx = pathCanvas.getContext("2d");
+        };
+      }
+
+      // 路径图片更新
+      function updatePathImage(start, goal) {
+        console.log("准备调用updatePathImage", start, goal);
+        const routeInfo = document.getElementById("route-info");
+        const pathImage = document.getElementById("path-image");
+        if (!start || !goal) {
+          routeInfo.textContent = "错误：缺少起点或终点参数";
+          return;
+        }
+        const normalizedStart = start.toUpperCase();
+        const normalizedGoal = goal.toUpperCase();
+        routeInfo.textContent = `当前路径: ${normalizedStart} → ${normalizedGoal} | 状态: 规划中...`;
+        fetch("/logistics/api/plan_path/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            start: normalizedStart,
+            goal: normalizedGoal,
+          }),
+        })
+          .then((response) => {
+            console.log("图片API返回", response);
+            if (!response.ok) {
+              return response.text().then((text) => {
+                throw new Error(`API错误 ${response.status}: ${text}`);
+              });
+            }
+            return response.blob();
+          })
+          .then((blob) => {
+            const url = URL.createObjectURL(blob);
+            pathImage.src = url;
+            routeInfo.textContent = `当前路径: ${normalizedStart} → ${normalizedGoal} | 状态: 已规划`;
+          })
+          .catch((error) => {
+            routeInfo.textContent = `路径规划失败: ${error.message}`;
+          });
+      }
+
+      // 实时追踪
+      function startTracking() {
+        if (trackingInterval) clearInterval(trackingInterval);
+        trackingInterval = setInterval(updateDronePositions, 3000);
+        updateDronePositions();
+      }
+      function stopTracking() {
+        if (trackingInterval) {
+          clearInterval(trackingInterval);
+          trackingInterval = null;
+        }
+      }
+
+      // 获取无人机实时位置
+      function updateDronePositions() {
+        fetch("/logistics/api/get_active_drones/")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              displayDrones(data.drones);
+            }
+          });
+      }
+
+      // 只用canvas画点和轨迹（使用格子坐标）
+      function displayDrones(drones) {
+        const droneInfo = document.getElementById("drone-info");
+        if (pathCtx) {
+          pathCtx.clearRect(0, 0, pathCtx.canvas.width, pathCtx.canvas.height);
+        }
+        let infoText = `活跃无人机数量: ${drones.length}`;
+        drones.forEach((drone) => {
+          if (drone.position) {
+            // 直接使用格子坐标，与A*路径保持一致
+            const x = drone.position.longitude;
+            const y = drone.position.latitude;
+            
+            // 将格子坐标映射到canvas坐标（与matplotlib保持一致）
+            const canvasX = y * (pathCtx.canvas.width / 40);  // 注意：x和y交换，与matplotlib保持一致
+            const canvasY = x * (pathCtx.canvas.height / 40);
+
+            // 记录轨迹
+            if (!dronePaths.has(drone.serial_number)) {
+              dronePaths.set(drone.serial_number, []);
+            }
+            const path = dronePaths.get(drone.serial_number);
+            path.push({ x: canvasX, y: canvasY });
+            if (path.length > 50) path.shift();
+
+            // 画轨迹线
+            if (path.length > 1) {
+              pathCtx.save();
+              pathCtx.strokeStyle = "#ff4444";
+              pathCtx.lineWidth = 3;
+              pathCtx.beginPath();
+              path.forEach((pt, idx) => {
+                if (idx === 0) pathCtx.moveTo(pt.x, pt.y);
+                else pathCtx.lineTo(pt.x, pt.y);
+              });
+              pathCtx.stroke();
+              pathCtx.restore();
+            }
+
+            // 画实时点
+            pathCtx.save();
+            pathCtx.beginPath();
+            pathCtx.arc(canvasX, canvasY, 8, 0, 2 * Math.PI);
+            pathCtx.fillStyle = "#00ff00";
+            pathCtx.shadowColor = "#00ff00";
+            pathCtx.shadowBlur = 10;
+            pathCtx.fill();
+            pathCtx.restore();
+
+            infoText += `\n${
+              drone.serial_number
+            }: 格子坐标(${x}, ${y})`;
+          }
+        });
+        droneInfo.textContent = infoText;
+        cleanupOldPositions();
+      }
+
+      // 清除所有轨迹
+      function clearAllPaths() {
+        dronePaths.clear();
+        if (pathCtx) {
+          pathCtx.clearRect(0, 0, pathCtx.canvas.width, pathCtx.canvas.height);
+        }
+      }
+
+      // 清理旧位置记录
+      function cleanupOldPositions() {
+        fetch("/logistics/api/clear_old_positions/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // 页面加载时初始化
+      window.onload = async function () {
+        console.log("window.onload被执行");
+        const start = getUrlParam("sender_address");
+        const goal = getUrlParam("receiver_address");
+        const serialNumber = getUrlParam("serial_number");
+        console.log("参数", start, goal, serialNumber);
+        if (start && goal && serialNumber) {
+          try {
+            // 1. 请求路径规划（获取JSON格式的路径点）
+            const pathRes = await fetch("/logistics/api/plan_path/", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" ,'Accept': 'application/json'},
+              body: JSON.stringify({
+                start: start.toUpperCase(),
+                goal: goal.toUpperCase(),
+              }),
+            });
+            const pathJson = await pathRes.json();
+
+            if (pathJson.success) {
+              // 2. 分配任务
+              console.log("准备fetch路径图片");
+              await fetch("/logistics/api/assign_task/", {
+                
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  serial_number: serialNumber,
+                  path: pathJson.path,
+                }),
+              });
+              console.log("fetch路径图片完成"); 
+              // 3. 请求路径图像（使用专门的图像API）
+              document.getElementById("start-point").value = start;
+              document.getElementById("goal-point").value = goal;
+              updatePathImage(start, goal); // 确保这个函数调用正确的图像API
+            }
+          } catch (error) {
+            console.error("路径规划或任务分配失败:", error);
+          }
+        }
+
+        initCanvas();
+        setTimeout(startTracking, 2000);
+      };
+    </script>
+  </body>
 </html>

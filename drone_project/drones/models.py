@@ -16,13 +16,12 @@ class Drone(models.Model):
     warranty_expiry = models.DateField()
     max_takeoff_weight = models.FloatField()
     max_flight_speed = models.FloatField()
-    flight_time = models.IntegerField()
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     current_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_stock')
     total_flight_time = models.IntegerField(default=0)
     current_load = models.FloatField(default=0)  # 新增当前负载字段
     return_time = models.DateTimeField(null=True, blank=True)
-    serial_number = models.CharField(max_length=100, unique=True)
+    endurance_time = models.IntegerField(default=0) 
     task_count = models.IntegerField(default=0)
     def __str__(self):
         return self.serial_number
@@ -54,4 +53,21 @@ class FlightRecord(models.Model):
 
     class Meta:
         db_table = 'flight records'
+
+class DronePosition(models.Model):
+    """无人机实时位置记录模型"""
+    drone = models.ForeignKey(Drone, on_delete=models.CASCADE, related_name='positions')
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    altitude = models.FloatField(default=0)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    speed = models.FloatField(null=True, blank=True)
+    heading = models.FloatField(null=True, blank=True)
+    
+    class Meta:
+        db_table = 'drone_position'
+        ordering = ['-timestamp']
+        
+    def __str__(self):
+        return f"{self.drone.serial_number} - {self.timestamp}"
 # Create your models here.

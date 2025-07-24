@@ -53,50 +53,58 @@ def logistics_form(request):
 
 def task_log(request):
     # 按创建时间排序获取物流信息
-    logistics_info_list = Goods.objects.all().order_by('created_at')
+    logistics_info_list = Goods.objects.select_related('drone').all().order_by('created_at')
     return render(request, '3首页.html', {'logistics_info_list': logistics_info_list})
 
+# goods/views.py（修正后）
 @login_required
 @require_POST
 def assign_goods(request, drone_pk):
-    """处理货物分配操作"""
     drone = get_object_or_404(Drone, pk=drone_pk)
 
     # 权限验证
     if not (request.user.is_superuser or drone.owner == request.user):
         return JsonResponse({"status": "error", "message": "无操作权限"}, status=403)
 
-    # 获取待分配货物（示例逻辑，需根据实际业务调整）
+    # 获取待分配货物（确保重量不超过无人机剩余容量）
+    # 关键：计算剩余容量（最大载重 - 当前负载）
+    remaining_capacity = drone.max_takeoff_weight - drone.current_load
     goods = Goods.objects.filter(
         status='pending',
-        weight__lte=drone.remaining_capacity
+        weight__lte=remaining_capacity,  # 货物重量 ≤ 剩余容量
+        drone__isnull=True  # 确保货物未分配过无人机
     ).first()
 
-    if goods:
-        try:
-            with transaction.atomic():
-                # 更新无人机状态
-                drone.current_load += goods.weight
-                drone.current_status = 'in_flight'
-                drone.save()
+    if not goods:
+        return JsonResponse({
+            "status": "error", 
+            "message": "没有符合条件的待分配货物（可能重量超限或已分配）"
+        }, status=404)
 
-                # 更新货物状态
-                goods.drone = drone
-                goods.status = 'in_transit'
-                goods.save()
+    try:
+        with transaction.atomic():
+            # 1. 更新无人机状态（锁定事务，防止并发问题）
+            drone.current_load += goods.weight
+            drone.current_status = 'in_flight'
+            drone.save()  # 保存无人机状态
 
-                return JsonResponse({
-                    "status": "success",
-                    "message": f"成功分配货物 {goods.name} 到无人机 {drone.serial_number}"
-                })
-        except Drone.DoesNotExist:
-            return JsonResponse({"status": "error", "message": "无人机不存在"}, status=500)
-        except Exception as e:
-            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+            # 2. 关键：关联货物与无人机，并更新货物状态
+            goods.drone = drone  # 建立外键关联
+            goods.status = 'in_transit'
+            goods.save()  # 保存货物状态
 
-    return JsonResponse({"status": "error", "message": "没有符合条件的待分配货物"}, status=404)
+            # 验证关联是否成功（调试用）
+            goods.refresh_from_db()  # 从数据库刷新最新数据
+            if goods.drone is None:
+                raise Exception("货物与无人机关联失败")
 
-logger = logging.getLogger(__name__)
+            return JsonResponse({
+                "status": "success",
+                "message": f"成功分配货物 {goods.name} 到无人机 {drone.serial_number}",
+                "drone_id": drone.id  # 返回无人机ID，确认分配结果
+            })
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": f"分配失败：{str(e)}"}, status=500)
 
 @require_http_methods(["POST"])
 def allocate_drone(request):
@@ -127,7 +135,11 @@ def allocate_drone(request):
         logger.info(f"成功创建货物记录，ID: {goods.id}")
 
         # 执行分配算法
-        allocate_goods()
+        allocation_result = allocate_goods(
+    goods_id=goods.id,  # 传递货物ID
+    sender_address=sender_address,
+    receiver_address=receiver_address
+)
         # 重新获取最新状态
         goods.refresh_from_db()
         if goods.drone:
@@ -143,9 +155,21 @@ def allocate_drone(request):
                 messages.warning(request, message_text)
 
             logger.info(f"货物 {goods.id} 成功分配到无人机 {goods.drone.serial_number}")
+            print("返回内容:", {
+                'status': 'success',
+                'drone_info': f"{goods.drone.serial_number} (剩余容量：{goods.drone.remaining_capacity}kg)",
+                'sender_address': sender_address,
+                'receiver_address': receiver_address,
+                'drone_id': goods.drone.id,
+                'message': f"货物已成功分配给无人机 {goods.drone.serial_number}，正在跳转到路径规划页面..."
+            })
             return JsonResponse({
                 'status': 'success',
-                'drone_info': f"{goods.drone.serial_number} (剩余容量：{goods.drone.remaining_capacity}kg)"
+                'drone_info': f"{goods.drone.serial_number} (剩余容量：{goods.drone.remaining_capacity}kg)",
+                'sender_address': sender_address,
+                'receiver_address': receiver_address,
+                'serial_number': goods.drone.serial_number,
+                'message': f"货物已成功分配给无人机 {goods.drone.serial_number}，正在跳转到路径规划页面..."
             })
         else:
             logger.info(f"货物 {goods.id} 分配失败，暂无可用无人机")

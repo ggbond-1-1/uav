@@ -214,15 +214,11 @@
             </div>
             <div class="nav-button">
                 <div class="circle"></div>
-                <a href="http://127.0.0.1:8000/drones/list/" style="color: white;">模块一</a>
+                <a href="http://127.0.0.1:8000/drones/list/" style="color: white;">无人机</a>
             </div>
             <div class="nav-button">
                 <div class="circle"></div>
-                <a href="http://127.0.0.1:8000/logistics/detail/" style="color: white;">模块二</a>
-            </div>
-            <div class="nav-button">
-                <div class="circle"></div>
-                <a href="http://127.0.0.1:8000/goods/form/" style="color: white;">模块三</a>
+                <a href="http://127.0.0.1:8000/goods/form/" style="color: white;">下单</a>
             </div>
         </div>
     </div>
@@ -245,6 +241,7 @@
                         <th>序号</th>
                         <th>任务执行时间</th>
                         <th>任务状态</th>
+                        <th>无人机ID</th> 
                         <th>详情</th>
                     </tr>
                 </thead>
@@ -260,8 +257,9 @@
                                     <span style="color: orange;">{{ task.get_status_display|default:task.status }}</span>
                                 {% endif %}
                             </td>
+                            <td>{{ task.drone_serial|default:"未分配" }}</td> 
                             <td>
-                                <a href="http://127.0.0.1:8000/logistics/detail/" class="detail-btn">查看详情</a>
+                                <a href="http://127.0.0.1:8000/logistics/detail/?sender_address={{ task.sender_address }}&receiver_address={{ task.receiver_address }}&serial_number={{ task.drone_serial}}" class="detail-btn">查看详情</a>
                             </td>
                         </tr>
                     {% endfor %}  {# 唯一的 endfor 标签 #}

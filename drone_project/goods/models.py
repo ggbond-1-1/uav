@@ -34,6 +34,8 @@ class Goods(models.Model):
     scheduled_time = models.DateTimeField(null=True)
     # 原视图中的 drone_options 字段
     drone_options = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)  # 创建时自动设置为当前时间
+    updated_at = models.DateTimeField(auto_now=True)      # 每次更新时自动设置为当前时间
 
     class Meta:
         db_table = 'goods'
