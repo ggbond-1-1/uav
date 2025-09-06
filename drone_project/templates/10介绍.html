@@ -14,116 +14,366 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            /* 使用图片作为背景 */
-            background: url('background.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: #e0e0e0;
-        }
-
-        /* 横幅样式 */
-       .banner {
-            background: linear-gradient(90deg, #395b80, #143c79);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            font-size: 30px;
-            position: relative;
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
-        }
-
-        /* 容器样式 */
-       .container {
-            display: flex;
-            padding: 30px;
-            gap: 30px;
-        }
-
-        /* 左侧面板样式 */
-       .left-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* 右侧面板样式 */
-       .right-panel {
-            flex: 1;
-        }
-
-        /* 各个板块样式 */
-       .section {
-            background-color: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-       .section h2 {
-            margin-top: 0;
-            color: #333;
-        }
-
-       .section p {
-            color: #666;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
             line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* 横幅样式 - 现代化设计 */
+        .banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: white;
+            padding: 60px 30px;
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .banner h1 {
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 主容器样式 */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* 内容容器样式 */
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        /* 各个板块样式 - 现代化卡片设计 */
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.8s ease-out;
+        }
+
+        .section:nth-child(1) { animation-delay: 0.1s; }
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.3s; }
+        .section:nth-child(4) { animation-delay: 0.4s; }
+        .section:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 悬停效果 */
+        .section:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        /* 装饰性边框 */
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+
+        .section:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* 内部装饰 */
+        .section::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.05), transparent);
+            transform: rotate(45deg);
+            transition: all 0.4s ease;
+        }
+
+        .section:hover::after {
+            transform: rotate(45deg) translate(20px, 20px);
+        }
+
+        .section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #1a202c;
+            font-size: 24px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 箭头图标 */
+        .section h2::after {
+            content: "→";
+            margin-left: auto;
+            color: #667eea;
+            font-size: 24px;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            font-weight: 300;
+        }
+
+        .section:hover h2::after {
+            transform: translateX(8px);
+            color: #764ba2;
+        }
+
+        .section p {
+            color: #4a5568;
+            font-size: 16px;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
         }
 
         /* 登录按钮样式 */
-       .login-button {
+        .login-button {
             position: absolute;
             top: 20px;
             right: 20px;
-            padding: 12px 25px;
-            background-color: rgba(0, 123, 255, 0.2);
-            color: white;
-            /* 将边框线改为黑色 */
-            border: 1px solid black; 
-            border-radius: 8px;
+            padding: 14px 28px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #667eea;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 16px;
             text-decoration: none;
+            font-weight: 600;
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 10;
         }
 
-       .login-button:hover {
-            background-color: rgba(0, 123, 255, 0.3);
+        .login-button:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            color: #764ba2;
+        }
+
+        /* 链接样式 */
+        .section-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .banner {
+                padding: 40px 20px;
+                font-size: 28px;
+            }
+            
+            .main-container {
+                padding: 20px 15px;
+            }
+            
+            .section {
+                padding: 25px;
+                margin-bottom: 20px;
+            }
+            
+            .section h2 {
+                font-size: 20px;
+            }
+            
+            .login-button {
+                top: 15px;
+                right: 15px;
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
         }
     </style>
 </head>
 
 <body>
     <div class="banner">
-        无人机物流平台
-        <a href="/users/login/" class="login-button">前往登录</a> <!-- 添加登录按钮 -->
+        <h1>无人机物流平台</h1>
+        <a href="/users/login/" class="login-button">前往登录</a>
     </div>
-    <div class="container">
-        <div class="left-panel">
-            <div class="section" id="introduction">
-                <h2>平台介绍</h2>
-                <p>这里是无人机物流平台的介绍内容，我们致力于为用户提供高效、便捷、安全的物流服务。通过先进的无人机技术，实现快速配送，满足您的各种需求。</p>
-            </div>
-            <div class="section" id="announcement">
-                <h2>活动公告</h2>
-                <p>最新的平台活动和公告将在这里展示，敬请关注我们的动态，参与丰富多样的活动，获取更多福利和优惠。</p>
-            </div>
-            <div class="section" id="policy">
-                <h2>相关政策</h2>
-                <p>无人机物流相关的政策法规信息，我们严格遵守各项规定，确保飞行安全和合法合规。了解更多政策详情，保障您的权益。</p>
-            </div>
-        </div>
-        <div class="right-panel">
-            <div class="section" id="ranking">
-                <h2>排行（飞行里程）</h2>
-                <p>无人机飞行里程排名将在这里展示，看看哪些无人机在我们的平台上表现出色，成为飞行里程的佼佼者。</p>
-            </div>
-            <div class="section" id="extra-info">
-                <h2>其他信息</h2>
-                <p>除了飞行里程排行，我们还会在此展示一些其他有用的信息，如热门航线、用户评价等，帮助您更好地了解和使用我们的平台。</p>
-            </div>
+    
+    <div class="main-container">
+        <div class="container">
+            <!-- 平台介绍区块 -->
+            <a href="http://127.0.0.1:8000/introduction/" class="section-link">
+                <div class="section" id="introduction">
+                    <h2>平台介绍</h2>
+                    <p>这里是无人机物流平台的介绍内容，我们致力于为用户提供高效、便捷、安全的物流服务。通过先进的无人机技术，实现快速配送，满足您的各种需求。</p>
+                </div>
+            </a>
+            
+            <!-- 活动公告区块 -->
+            <a href="http://127.0.0.1:8000/announcements/" class="section-link">
+                <div class="section" id="announcement">
+                    <h2>活动公告</h2>
+                    <p>最新的平台活动和公告将在这里展示，敬请关注我们的动态，参与丰富多样的活动，获取更多福利和优惠。</p>
+                </div>
+            </a>
+            
+            <!-- 相关政策区块 -->
+            <a href="http://127.0.0.1:8000/policies/" class="section-link">
+                <div class="section" id="policy">
+                    <h2>相关政策</h2>
+                    <p>无人机物流相关的政策法规信息，我们严格遵守各项规定，确保飞行安全和合法合规。了解更多政策详情，保障您的权益。</p>
+                </div>
+            </a>
+            
+            <!-- 飞行排行区块 -->
+            <a href="/flight-ranking/" class="section-link">
+                <div class="section" id="ranking">
+                    <h2>排行（飞行里程）</h2>
+                    <p>无人机飞行里程排名将在这里展示，看看哪些无人机在我们的平台上表现出色，成为飞行里程的佼佼者。（单位：里）</p>
+                </div>
+            </a>
         </div>
     </div>
+
+    <script>
+        // 添加滚动动画
+        const sections = document.querySelectorAll('.section');
+        
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // 添加点击波纹效果
+        sections.forEach(section => {
+            section.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // 添加键盘导航支持
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const focusedSection = document.querySelector('.section:focus');
+                if (focusedSection) {
+                    focusedSection.click();
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
+    

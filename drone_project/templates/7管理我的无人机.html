@@ -11,166 +11,360 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #050505, #151515);
-            color: #333; /* 整体文字颜色设为黑色系 */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1f2937;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 动态背景动画 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-10px, -10px) rotate(1deg); }
+            50% { transform: translate(10px, -5px) rotate(-1deg); }
+            75% { transform: translate(-5px, 10px) rotate(0.5deg); }
         }
 
         /* 顶部导航栏样式 */
-       .top-navbar {
-            background: linear-gradient(90deg, #081828, #003d77);
-            color: white;
-            padding: 20px;
+        .top-navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: #2c3e50;
+            padding: 20px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-title {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-button {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .circle {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        .nav-button a {
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-button:hover a {
+            color: #667eea;
+        }
+
+        /* 左侧栏样式 */
+        .left-sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            width: 280px;
+            height: 100vh;
+            padding: 30px 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            position: fixed;
+            left: 0;
             top: 0;
             z-index: 100;
         }
 
-       .nav-buttons {
-            display: flex;
-        }
-
-       .nav-button {
-            display: flex;
-            align-items: center;
-            margin-left: 20px;
-            cursor: pointer;
-        }
-
-       .circle {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        /* 左侧栏样式 */
-       .left-sidebar {
-            background-color: rgba(224, 242, 241, 0.5);
-            width: 220px;
-            height: 100vh;
-            padding: 20px;
-            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-       .sidebar-button {
+        .sidebar-button {
             display: block;
             width: 100%;
-            padding: 12px;
+            padding: 15px 20px;
             margin-bottom: 15px;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: #4a5568;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: left;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
         }
 
-       .sidebar-button:hover {
-            background-color: #f0f0f0;
+        .sidebar-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .sidebar-button:hover::before {
+            left: 100%;
+        }
+
+        .sidebar-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(102, 126, 234, 0.3);
             transform: translateX(5px);
+            color: #2d3748;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
 
         /* 详情内容区样式 */
-       .drone-detail {
-            max-width: 900px; /* 宽度增大到900px */
-            margin: 20px auto;
-            padding: 25px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        .drone-detail {
+            max-width: 900px;
+            margin: 30px auto;
+            margin-left: 320px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-       .detail-item {
-            margin-bottom: 25px;
-            font-size: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 12px;
+        .drone-detail::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .drone-detail:hover::before {
+            left: 100%;
+        }
+
+        .drone-detail:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .detail-item {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+            transition: all 0.3s ease;
         }
 
-       .detail-item label {
-            width: 200px;
-            color: #666;
-            vertical-align: top;
-        }
-
-       .detail-item span {
-            flex: 1;
-            font-weight: normal;
-            color: #333;
-            border: 1px solid rgba(0, 123, 255, 0.4);
-            border-radius: 8px;
-            padding: 6px 8px;
-        }
-
-        /* 操作按钮组样式 */
-       .action-buttons {
-            margin-top: 30px;
-            text-align: center;
-        }
-
-       .delete-button {
-            padding: 12px 30px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
+        .detail-item:hover {
+            background: rgba(102, 126, 234, 0.05);
             border-radius: 10px;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 16px;
+        }
+
+        .detail-value {
+            color: #2d3748;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* 按钮样式 */
+        .action-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 18px;
-            transition: background-color 0.3s;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+            margin: 5px;
         }
 
-       .delete-button:hover {
-            background-color: #bb2d3b;
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
         }
 
-        /* 消息提示样式 */
-       .message-container {
-            margin-bottom: 25px;
+        .action-button:hover::before {
+            left: 100%;
         }
 
-       .error-message {
-            color: #dc3545;
-            padding: 12px;
-            border-radius: 8px;
-            background-color: #f8d7da;
-            font-size: 16px;
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
 
-       .success-message {
-            color: #155724;
-            padding: 12px;
-            border-radius: 8px;
-            background-color: #d4edda;
-            font-size: 16px;
+        .delete-button {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .delete-button:hover {
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-in-stock {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .status-in-flight {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .status-maintenance {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .left-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                margin-bottom: 20px;
+            }
+            
+            .drone-detail {
+                margin-left: 20px;
+                margin-right: 20px;
+                padding: 20px;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* 加载动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .drone-detail {
+            animation: fadeInUp 0.6s ease forwards;
         }
     </style>
 </head>
 
 <body>
-    <!-- 顶部导航栏 -->
+    <!-- 顶部导航栏 - 已移除右上角的返回列表按钮 -->
     <div class="top-navbar">
-        <div>无人机管理系统</div>
-        <div class="nav-buttons">
-            <div class="nav-button">
-                <button class="circle" style="background-color: #800080;" onclick="window.location.href='{% url 'drones:list' %}'"></button>
-                <button>返回列表</button>
-            </div>
-        </div>
+        <div class="nav-title">无人机管理系统</div>
+        <!-- 移除了右侧的返回列表按钮 -->
     </div>
 
     <!-- 主体部分 -->
     <div style="display: flex;">
-        <!-- 左侧栏 -->
+        <!-- 左侧栏 - 保留返回列表功能按钮 -->
         <div class="left-sidebar">
             <button class="sidebar-button" onclick="window.location.href='{% url 'drones:register' %}'">注册新设备</button>
             <button class="sidebar-button" onclick="window.location.href='{% url 'drones:list' %}'">返回列表</button>
@@ -218,7 +412,7 @@
             </div>
             <div class="detail-item">
                 <label>续航时间：</label>
-                <span>{{ drone.flight_time }} 分钟</span>
+                <span>{{ drone.endurance_time }} 小时</span>
             </div>
             <div class="detail-item">
                 <label>当前状态：</label>
@@ -236,3 +430,4 @@
     </div>
 </body>
 </html>
+    

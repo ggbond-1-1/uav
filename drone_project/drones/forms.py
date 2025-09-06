@@ -14,7 +14,7 @@ class DroneForm(forms.ModelForm):
             'warranty_expiry',
             'max_takeoff_weight',
             'max_flight_speed',
-            'flight_time',
+            'endurance_time',
             'current_status'
         ]
         labels = {
@@ -25,6 +25,6 @@ class DroneForm(forms.ModelForm):
             'warranty_expiry': '保修截止日期',
             'max_takeoff_weight': '最大起飞重量',
             'max_flight_speed': '最大飞行速度',
-            'flight_time': '飞行时间',
+            'endurance_time': '续航时间',
             'current_status': '当前状态'
         }

@@ -1,192 +1,701 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>无人机管理系统</title>
+    <title>注册无人机</title>
     <style>
-        /* 全局样式初始化 */
+        /* 全局样式 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #050505, #151515);
-            color: #e0e0e0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1f2937;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        /* 顶部导航栏样式 */
-       .top-navbar {
-            background: linear-gradient(90deg, #081828, #003d77);
-            color: white;
-            padding: 18px 25px;
+        /* 动态背景动画 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-10px, -10px) rotate(1deg); }
+            50% { transform: translate(10px, -5px) rotate(-1deg); }
+            75% { transform: translate(-5px, 10px) rotate(0.5deg); }
+        }
+
+        /* 顶部导航栏 */
+        .top-navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
+        }
+
+        .nav-title {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         /* 导航按钮组 */
-       .nav-buttons {
+        .nav-buttons {
             display: flex;
-            gap: 25px;
+            gap: 20px;
         }
 
         /* 单个导航按钮 */
-       .nav-button button {
-            padding: 10px 20px;
-            background-color: rgba(0, 123, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(0, 123, 255, 0.4);
-            border-radius: 8px;
+        .nav-button button {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: #4b5563;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-size: 15px;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
         }
 
-       .nav-button button:hover {
-            background-color: rgba(0, 123, 255, 0.3);
+        .nav-button button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
         }
 
-       .nav-button span {
-            margin-left: 5px;
+        .nav-button button:hover::before {
+            left: 100%;
         }
 
-       .circle {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 5px;
+        .nav-button button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
 
-        /* 左侧栏样式 */
-       .left-sidebar {
-            background-color: rgba(224, 242, 241, 0.5);
-            width: 220px;
-            height: 100vh;
-            padding: 20px;
-            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+        /* 左侧栏 */
+        .left-sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            width: 280px;
+            min-height: calc(100vh - 80px);
+            padding: 30px 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            position: fixed;
+            left: 0;
+            top: 80px;
+            z-index: 100;
         }
 
-       .sidebar-button {
+        .sidebar-button {
             display: block;
             width: 100%;
-            padding: 12px;
+            padding: 15px 20px;
             margin-bottom: 15px;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: left;
+            color: #4b5563;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
         }
 
-       .sidebar-button:hover {
-            background-color: #f0f0f0;
+        .sidebar-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .sidebar-button:hover::before {
+            left: 100%;
+        }
+
+        .sidebar-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(102, 126, 234, 0.3);
+            color: #2d3748;
             transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         }
 
-        /* 右侧主内容区样式 */
-       .main-content {
+        /* 主内容区 */
+        .main-content {
             flex: 1;
-            padding: 30px;
-            background-color: white;
-            box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
             margin: 20px;
-            color: black;
-        }
-
-       .form-item {
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-
-       .form-item label {
-            display: inline-block;
-            width: 200px;
-        }
-
-       .form-item input {
-            width: 300px;
-            height: 30px;
-            border: 1px solid rgba(0, 123, 255, 0.4);
-            border-radius: 8px;
-            background: transparent;
-            font-size: 18px;
-            padding: 0 10px;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.1);
+            margin-left: 320px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-       .form-item input:focus {
-            border-color: #0b335d;
+        .main-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .main-content:hover::before {
+            left: 100%;
+        }
+
+        .main-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 标题样式 */
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 1px;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 16px;
+            position: relative;
+            padding-left: 8px;
+        }
+
+        .form-group label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid rgba(229, 231, 235, 0.3);
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            backdrop-filter: blur(15px);
+            box-shadow: 
+                0 4px 6px rgba(0, 0, 0, 0.05),
+                0 1px 3px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-group input::placeholder,
+        .form-group select::placeholder {
+            color: rgba(107, 114, 128, 0.6);
+            font-weight: 400;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
-            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+            box-shadow: 
+                0 8px 25px rgba(102, 126, 234, 0.15),
+                0 4px 10px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-3px) scale(1.02);
         }
 
-       .confirm-button {
-            padding: 10px 20px;
-            background-color: #05294f;
+        .form-group input:hover,
+        .form-group select:hover {
+            border-color: rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8));
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.08),
+                0 2px 6px rgba(0, 0, 0, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
+        }
+
+        /* 输入框包装器 */
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .form-group input:focus + .input-icon,
+        .form-group select:focus + .input-icon {
+            opacity: 1;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* 输入框内部光效动画 */
+        .form-group input::after,
+        .form-group select::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transition: left 0.6s ease;
+            pointer-events: none;
+        }
+
+        .form-group input:focus::after,
+        .form-group select:focus::after {
+            left: 100%;
+        }
+
+        /* 为带图标的输入框调整内边距 */
+        .input-wrapper input,
+        .input-wrapper select {
+            padding-right: 50px;
+        }
+
+        /* 输入框聚焦时的标签动画 */
+        .form-group input:focus ~ label,
+        .form-group select:focus ~ label {
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* 输入框内容时的标签状态 */
+        .form-group input:not(:placeholder-shown) ~ label,
+        .form-group select:not(:placeholder-shown) ~ label {
+            color: #374151;
+        }
+
+        /* 添加输入框的微光效果 */
+        .form-group input::before,
+        .form-group select::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            border-radius: 16px;
+        }
+
+        .form-group input:focus::before,
+        .form-group select:focus::before {
+            opacity: 1;
+        }
+
+        /* 添加输入框的边框动画 */
+        .form-group input,
+        .form-group select {
+            border-image: linear-gradient(45deg, #667eea, #764ba2) 1;
+            border-image-slice: 1;
+            border-image-width: 0;
+            transition: border-image-width 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-image-width: 2px;
+        }
+
+        /* 表单验证样式 */
+        .form-group input:invalid,
+        .form-group select:invalid {
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .form-group input:valid,
+        .form-group select:valid {
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        /* 提交按钮 */
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
+            padding: 18px 35px;
             border: none;
-            border-radius: 6px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 25px rgba(102, 126, 234, 0.3),
+                0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            margin-top: 30px;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-       .confirm-button:hover {
-            background-color: #0056b3;
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
         }
 
-       .error-message {
-            color: red;
-            margin-bottom: 10px;
+        .submit-btn:hover::before {
+            left: 100%;
         }
 
-       .success-message {
-            color: green;
-            margin-bottom: 10px;
+        .submit-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 
+                0 15px 35px rgba(102, 126, 234, 0.4),
+                0 8px 15px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        /* 确认注册按钮样式 */
+        .confirm-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 18px 35px;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 25px rgba(102, 126, 234, 0.3),
+                0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            margin-top: 30px;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .confirm-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .confirm-button:hover::before {
+            left: 100%;
+        }
+
+        .confirm-button:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 
+                0 15px 35px rgba(102, 126, 234, 0.4),
+                0 8px 15px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+        }
+
+        .confirm-button:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        /* 消息提示 */
+        .message {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* 表单容器样式 */
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        /* 表单底部提示样式 */
+        .form-footer {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .form-footer p {
+            margin: 0 0 10px 0;
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .form-footer p:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-footer p::before {
+            content: '💡';
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-size: 16px;
+        }
+
+        .form-footer p:last-child::before {
+            content: '📞';
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .left-sidebar {
+                width: 100%;
+                position: relative;
+                top: 0;
+                margin-bottom: 20px;
+            }
+            
+            .main-content {
+                margin-left: 20px;
+                margin-right: 20px;
+                padding: 20px;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* 加载动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .main-content {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        /* 表单字段动画 */
+        .form-group {
+            animation: fadeInUp 0.6s ease forwards;
+            animation-delay: calc(var(--animation-order) * 0.1s);
+        }
+
+        .form-group:nth-child(1) { --animation-order: 1; }
+        .form-group:nth-child(2) { --animation-order: 2; }
+        .form-group:nth-child(3) { --animation-order: 3; }
+        .form-group:nth-child(4) { --animation-order: 4; }
+        .form-group:nth-child(5) { --animation-order: 5; }
+        .form-group:nth-child(6) { --animation-order: 6; }
+        .form-group:nth-child(7) { --animation-order: 7; }
+        .form-group:nth-child(8) { --animation-order: 8; }
+        .form-group:nth-child(9) { --animation-order: 9; }
+
+        /* 加载状态样式 */
+        .confirm-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* 成功提交动画 */
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .success-pulse {
+            animation: successPulse 0.6s ease;
         }
     </style>
 </head>
-
 <body>
-    <!-- 顶部导航栏 -->
+    <!-- 顶部导航栏 - 采用第二个页面的导航结构 -->
     <div class="top-navbar">
-        <div>无人机管理系统</div>
+        <div class="nav-title">无人机管理系统</div>
         <div class="nav-buttons">
             <div class="nav-button">
                 <button onclick="window.location.href='http://127.0.0.1:8000/users/home/'">首页</button>
             </div>
             <div class="nav-button">
-                <button onclick="window.location.href='http://127.0.0.1:8000/drones/list/'">模块一</button>
+                <button onclick="window.location.href='http://127.0.0.1:8000/goods/form/'">下单</button>
             </div>
             <div class="nav-button">
-                <button onclick="window.location.href='http://127.0.0.1:8000/logistics/detail/'">模块二</button>
-            </div>
-            <div class="nav-button">
-                <button onclick="window.location.href='http://127.0.0.1:8000/goods/form/'">模块三</button>
+                <div class="circle"></div>
+                <a href="http://127.0.0.1:8000/drones/list/">无人机</a>
             </div>
         </div>
     </div>
-    <!-- 主体部分 -->
-    <div style="display: flex;">
-        <!-- 左侧栏 -->
+
+    <!-- 主体部分 - 采用第一个页面的布局结构 -->
+    <div class="main-container">
+        <!-- 左侧栏 - 保留相同的功能按钮 -->
         <div class="left-sidebar">
             <button class="sidebar-button" onclick="window.location.href='http://127.0.0.1:8000/drones/register/'">注册我的无人机</button>
             <button class="sidebar-button" onclick="window.location.href='http://127.0.0.1:8000/users/manage/'">个人信息管理</button>
             <button class="sidebar-button" onclick="window.location.href='http://127.0.0.1:8000/drones/detail/'">管理我的无人机</button>
         </div>
-        <!-- 右侧主内容区 -->
+
+        <!-- 右侧主内容区 - 保留表单功能和样式 -->
         <div class="main-content">
+            <h2>注册新无人机</h2>
+            
+            <!-- 消息提示 -->
             {% if messages %}
                 <div class="error-message">
                     {% for message in messages %}
@@ -194,21 +703,278 @@
                     {% endfor %}
                 </div>
             {% endif %}
-            <form method="post">
-                {% csrf_token %}
-                {% for field in form %}
-                    <div class="form-item">
-                        <label>{{ field.label_tag }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <div class="error-message">{{ field.errors }}</div>
+
+            <div class="form-container">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- 序列号 -->
+                    <div class="form-group">
+                        <label for="{{ form.serial_number.id_for_label }}">序列号 *</label>
+                        <div class="input-wrapper">
+                            {{ form.serial_number }}
+                            <span class="input-icon">🔢</span>
+                        </div>
+                        {% if form.serial_number.errors %}
+                            <div class="error-message">{{ form.serial_number.errors }}</div>
                         {% endif %}
                     </div>
-                {% endfor %}
-                <button class="confirm-button" type="submit">确定</button>
-            </form>
+
+                    <!-- 型号 -->
+                    <div class="form-group">
+                        <label for="{{ form.model.id_for_label }}">型号 *</label>
+                        <div class="input-wrapper">
+                            {{ form.model }}
+                            <span class="input-icon">🚁</span>
+                        </div>
+                        {% if form.model.errors %}
+                            <div class="error-message">{{ form.model.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 制造商 -->
+                    <div class="form-group">
+                        <label for="{{ form.manufacturer.id_for_label }}">制造商 *</label>
+                        <div class="input-wrapper">
+                            {{ form.manufacturer }}
+                            <span class="input-icon">🏭</span>
+                        </div>
+                        {% if form.manufacturer.errors %}
+                            <div class="error-message">{{ form.manufacturer.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 采购日期 -->
+                    <div class="form-group">
+                        <label for="{{ form.purchase_date.id_for_label }}">采购日期 *</label>
+                        <div class="input-wrapper">
+                            {{ form.purchase_date }}
+                            <span class="input-icon">📅</span>
+                        </div>
+                        <small class="form-text" style="color: #6b7280; font-size: 12px; margin-top: 5px; display: block;">格式：2000-1-1</small>
+                        {% if form.purchase_date.errors %}
+                            <div class="error-message">{{ form.purchase_date.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 最大起飞重量 -->
+                    <div class="form-group">
+                        <label for="{{ form.max_takeoff_weight.id_for_label }}">最大起飞重量 (kg) *</label>
+                        <div class="input-wrapper">
+                            {{ form.max_takeoff_weight }}
+                            <span class="input-icon">⚖️</span>
+                        </div>
+                        {% if form.max_takeoff_weight.errors %}
+                            <div class="error-message">{{ form.max_takeoff_weight.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 续航时间 -->
+                    <div class="form-group">
+                        <label for="{{ form.endurance_time.id_for_label }}">续航时间 (分钟) *</label>
+                        <div class="input-wrapper">
+                            {{ form.endurance_time }}
+                            <span class="input-icon">⏱️</span>
+                        </div>
+                        {% if form.endurance_time.errors %}
+                            <div class="error-message">{{ form.endurance_time.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 最大飞行速度 -->
+                    <div class="form-group">
+                        <label for="{{ form.max_flight_speed.id_for_label }}">最大飞行速度 (km/h) *</label>
+                        <div class="input-wrapper">
+                            {{ form.max_flight_speed }}
+                            <span class="input-icon">💨</span>
+                        </div>
+                        {% if form.max_flight_speed.errors %}
+                            <div class="error-message">{{ form.max_flight_speed.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 保修截止日期 -->
+                    <div class="form-group">
+                        <label for="{{ form.warranty_expiry.id_for_label }}">保修截止日期</label>
+                        <div class="input-wrapper">
+                            {{ form.warranty_expiry }}
+                            <span class="input-icon">🛡️</span>
+                        </div>
+                        <small class="form-text" style="color: #6b7280; font-size: 12px; margin-top: 5px; display: block;">格式：2000-1-1</small>
+                        {% if form.warranty_expiry.errors %}
+                            <div class="error-message">{{ form.warranty_expiry.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- 当前状态 -->
+                    <div class="form-group">
+                        <label for="{{ form.current_status.id_for_label }}">当前状态</label>
+                        <div class="input-wrapper">
+                            {{ form.current_status }}
+                            <span class="input-icon">📊</span>
+                        </div>
+                        {% if form.current_status.errors %}
+                            <div class="error-message">{{ form.current_status.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button class="confirm-button" type="submit">确认注册</button>
+                </form>
+
+                <!-- 保留表单底部说明 -->
+                <div class="form-footer">
+                    <p>提示：请确保填写的所有信息准确无误，无人机注册后将与您的账户永久绑定。</p>
+                    <p>如需帮助，请联系客服热线：156-4309-4052</p>
+                </div>
+            </div>
         </div>
     </div>
-</body>
 
-</html>    
+    <script>
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为所有输入框添加焦点效果
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                // 添加输入时的实时验证反馈
+                input.addEventListener('input', function() {
+                    if (this.checkValidity()) {
+                        this.classList.add('valid');
+                        this.classList.remove('invalid');
+                    } else {
+                        this.classList.add('invalid');
+                        this.classList.remove('valid');
+                    }
+                });
+
+                // 添加焦点动画
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
+            });
+
+            // 添加自定义验证规则
+            const maxTakeoffWeightInput = document.querySelector('input[name="max_takeoff_weight"]');
+            const enduranceTimeInput = document.querySelector('input[name="endurance_time"]');
+            const maxFlightSpeedInput = document.querySelector('input[name="max_flight_speed"]');
+
+            // 最大起飞重量验证
+            if (maxTakeoffWeightInput) {
+                maxTakeoffWeightInput.setAttribute('min', '0.01');
+                maxTakeoffWeightInput.setAttribute('step', '0.01');
+            }
+
+            // 续航时间验证
+            if (enduranceTimeInput) {
+                enduranceTimeInput.setAttribute('min', '1');
+                enduranceTimeInput.setAttribute('step', '1');
+            }
+
+            // 最大飞行速度验证
+            if (maxFlightSpeedInput) {
+                maxFlightSpeedInput.setAttribute('min', '0.01');
+                maxFlightSpeedInput.setAttribute('step', '0.01');
+            }
+
+            // 表单提交处理
+            const form = document.querySelector('form');
+            const submitBtn = document.querySelector('.confirm-button');
+            
+            form.addEventListener('submit', function(e) {
+                // 显示加载状态
+                submitBtn.textContent = '注册中...';
+                submitBtn.disabled = true;
+                
+                // 添加加载动画
+                submitBtn.classList.add('loading');
+                
+                // 模拟提交延迟（实际项目中会由Django处理）
+                setTimeout(() => {
+                    submitBtn.classList.remove('loading');
+                    submitBtn.classList.add('success-pulse');
+                    
+                    setTimeout(() => {
+                        submitBtn.classList.remove('success-pulse');
+                        submitBtn.textContent = '注册成功！';
+                        submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    }, 600);
+                }, 2000);
+            });
+
+            // 为侧边栏按钮添加点击波纹效果
+            const sidebarButtons = document.querySelectorAll('.sidebar-button');
+            sidebarButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.width = ripple.style.height = size + 'px';
+                    ripple.style.left = x + 'px';
+                    ripple.style.top = y + 'px';
+                    ripple.classList.add('ripple');
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+            // 添加波纹效果样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .ripple {
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.6);
+                    transform: scale(0);
+                    animation: ripple-animation 0.6s linear;
+                    pointer-events: none;
+                }
+                
+                @keyframes ripple-animation {
+                    to {
+                        transform: scale(4);
+                        opacity: 0;
+                    }
+                }
+
+                .loading {
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .loading::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                    animation: loading-shimmer 1.5s infinite;
+                }
+
+                @keyframes loading-shimmer {
+                    0% { left: -100%; }
+                    100% { left: 100%; }
+                }
+
+                .focused {
+                    transform: translateY(-2px);
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
+    

@@ -11,4 +11,5 @@ urlpatterns = [
     path('delete/<int:pk>/', views.drone_delete, name='delete'),
     path('detail/', views.drone_detail_default, name='detail_default'),
     path('api/available_drones/', AvailableDronesAPI.as_view(), name='available_drones_api'),
+    path('realtime/', views.drone_realtime_position, name='realtime'),
 ]

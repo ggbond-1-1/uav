@@ -13,8 +13,8 @@ class Goods(models.Model):
     name = models.CharField(max_length=255, default='未命名货物')
     # 对应 views 中的 item_type
     item_type = models.CharField(max_length=255)
-    weight = models.FloatField(validators=[MinValueValidator(0.1)])
-    volume = models.FloatField(validators=[MinValueValidator(0.01)])
+    weight = models.FloatField(validators=[MinValueValidator(0.01, message='重量必须大于0')])
+    volume = models.FloatField(validators=[MinValueValidator(0.001, message='体积必须大于0')])
     # 对应 views 中的 sender
     sender = models.CharField(max_length=255)
     sender_address = models.CharField(max_length=255)
@@ -34,6 +34,8 @@ class Goods(models.Model):
     scheduled_time = models.DateTimeField(null=True)
     # 原视图中的 drone_options 字段
     drone_options = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)  # 创建时自动设置为当前时间
+    updated_at = models.DateTimeField(auto_now=True)      # 每次更新时自动设置为当前时间
 
     class Meta:
         db_table = 'goods'

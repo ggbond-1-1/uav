@@ -25,7 +25,6 @@ class Migration(migrations.Migration):
                 ('warranty_expiry', models.DateField()),
                 ('max_takeoff_weight', models.FloatField()),
                 ('max_flight_speed', models.FloatField()),
-                ('flight_time', models.IntegerField()),
                 ('current_status', models.CharField(choices=[('in_stock', '在库'), ('in_flight', '飞行中'), ('maintenance', '维修中')], default='in_stock', max_length=20)),
                 ('total_flight_time', models.IntegerField(default=0)),
                 ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),

@@ -3,6 +3,7 @@ from django.contrib import messages
 from .models import Drone
 from .forms import DroneForm
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
 @login_required
 def drone_register(request):
@@ -13,10 +14,27 @@ def drone_register(request):
             drone = form.save(commit=False)
             drone.owner = request.user
             drone.save()
-            messages.success(request, '无人机注册成功！')
-            return redirect('drones:list')
+            
+            # 检查是否为AJAX请求
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': '无人机注册成功！',
+                    'drone_id': drone.id
+                })
+            else:
+                messages.success(request, '无人机注册成功！')
+                return redirect('drones:list')
         else:
-            messages.error(request, '表单验证失败，请检查输入！')
+            # 检查是否为AJAX请求
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': '表单验证失败，请检查输入！',
+                    'errors': form.errors
+                })
+            else:
+                messages.error(request, '表单验证失败，请检查输入！')
     else:
         form = DroneForm()
     return render(request, '5注册我的无人机.html', {'form': form})
@@ -29,6 +47,7 @@ def drone_list(request):
         return render(request, '8无人机监管（管理员）.html')
     else:
         drones = Drone.objects.filter(owner=request.user)
+        # 使用同一个模板，模板内部会根据drones是否存在来显示不同内容
         template = '4无人机注册空页.html'
     return render(request, template, {'drones': drones})
 
@@ -78,3 +97,22 @@ class AvailableDronesAPI(View):
         } for drone in drones]
 
         return JsonResponse({"drones": drone_list})
+@login_required
+def drone_realtime_position(request):
+    # 验证用户是否有权限查看该无人机（根据序列号）
+    serial = request.GET.get('serial')
+    if not serial:
+        messages.error(request, '缺少无人机标识')
+        return redirect('drones:list')
+    
+    # 检查无人机是否属于当前用户
+    try:
+        drone = Drone.objects.get(serial_number=serial)
+        if not (request.user.is_superuser or drone.owner == request.user):
+            messages.error(request, '无权查看该无人机位置')
+            return redirect('drones:list')
+    except Drone.DoesNotExist:
+        messages.error(request, '无人机不存在')
+        return redirect('drones:list')
+    
+    return render(request, '13无人机实时位置.html')

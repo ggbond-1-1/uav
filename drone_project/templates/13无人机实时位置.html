@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无人机实时位置</title>
+    <style>
+        /* 全局样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #1f2937;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 动态背景动画 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-10px, -10px) rotate(1deg); }
+            50% { transform: translate(10px, -5px) rotate(-1deg); }
+            75% { transform: translate(-5px, 10px) rotate(0.5deg); }
+        }
+
+        /* 导航栏 */
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-title {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-button {
+            padding: 12px 24px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            font-size: 16px;
+            color: #4b5563;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            margin-left: 15px;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-button:hover::before {
+            left: 100%;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 页面标题 */
+        .page-title {
+            margin-top: 40px;
+            margin-bottom: 30px;
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            text-align: center;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 地图容器 */
+        .map-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            position: relative;
+            max-width: 800px;
+            width: 90%;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .map-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .map-container:hover::before {
+            left: 100%;
+        }
+
+        .map-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        #drone-map {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+        }
+
+        #position-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 500;
+            background: transparent;
+        }
+
+        /* 位置信息 */
+        .position-info {
+            margin-top: 30px;
+            font-size: 18px;
+            color: #4b5563;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 800px;
+            width: 90%;
+            transition: all 0.3s ease;
+        }
+
+        .position-info:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .control-panel:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .control-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .control-button:hover::before {
+            left: 100%;
+        }
+
+        .control-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .control-button.stop {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .control-button.stop:hover {
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .control-button.clear {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+        }
+
+        .control-button.clear:hover {
+            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+        }
+
+        .control-button.show-all {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .control-button.show-all:hover {
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .control-button.test-collision {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .control-button.test-collision:hover {
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        /* 状态指示器 */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        .status-text {
+            color: #4b5563;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        /* 加载动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-title {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .map-container {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .position-info {
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .control-panel {
+            animation: fadeInUp 1.2s ease forwards;
+        }
+
+        /* 左侧边栏样式 */
+        .left-sidebar {
+            position: fixed;
+            left: 0;
+            top: 80px;
+            width: 320px;
+            height: calc(100vh - 80px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+            position: relative;
+        }
+
+        .sidebar-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 1px;
+        }
+
+        .drone-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drone-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .drone-card:hover::before {
+            left: 100%;
+        }
+
+        .drone-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .drone-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 12px;
+        }
+
+        .drone-icon {
+            font-size: 24px;
+            color: #667eea;
+        }
+
+        .drone-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .drone-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .drone-details {
+            margin-bottom: 15px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .distance-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .distance-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .distance-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .show-route-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .show-route-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .show-route-btn:hover::before {
+            left: 100%;
+        }
+
+        .show-route-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            margin-bottom: 20px;
+        }
+
+        .refresh-btn:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        /* 调整主内容区域以适应侧边栏 */
+        .main-content {
+            margin-left: 320px;
+            padding: 20px;
+            width: calc(100% - 320px);
+        }
+
+        .page-title {
+            margin-left: 320px;
+        }
+
+        .position-info {
+            margin-left: 320px;
+        }
+
+        .control-panel {
+            margin-left: 320px;
+        }
+
+        .map-container {
+            margin-left: 450px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .left-sidebar {
+                position: relative;
+                top: 0;
+                width: 100%;
+                height: auto;
+                margin-bottom: 20px;
+            }
+
+            .main-content,
+            .page-title,
+            .position-info,
+            .control-panel,
+            .map-container {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .page-title {
+                font-size: 28px;
+                margin-top: 20px;
+            }
+            
+            .map-container {
+                margin: 20px;
+                padding: 15px;
+            }
+            
+            .nav-bar {
+                padding: 15px 20px;
+            }
+            
+            .nav-button {
+                padding: 8px 16px;
+                font-size: 14px;
+                margin-left: 10px;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-bar">
+        <button class="nav-button" onclick="window.location.href='/users/home/'">返回</button>
+    </nav>
+
+    <!-- 左侧边栏 -->
+    <div class="left-sidebar">
+        <h3 class="sidebar-title">执行任务无人机</h3>
+        <button class="show-route-btn refresh-btn" onclick="getActiveDrones()">
+            刷新无人机信息
+        </button>
+        <div id="stats-container" class="drone-card" style="margin-bottom: 20px;">
+            <div class="distance-title">实时统计</div>
+            <div class="detail-row">
+                <span class="detail-label">活跃无人机:</span>
+                <span class="detail-value" id="active-count">0</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">总路径点数:</span>
+                <span class="detail-value" id="total-paths">0</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">最后更新:</span>
+                <span class="detail-value" id="last-update">--</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">碰撞检测:</span>
+                <span class="detail-value" id="collision-status" style="color: #10b981;">🟢 正常</span>
+            </div>
+        </div>
+        <div id="active-drones-container">
+            <!-- 动态生成的无人机卡片将在这里显示 -->
+        </div>
+    </div>
+
+    <div class="page-title">无人机实时位置追踪</div>
+    <div class="position-info" id="route-info">正在加载路径信息...</div>
+    <div class="position-info" id="position-info">等待无人机数据...</div>
+
+    <div class="control-panel">
+        <button class="control-button start-tracking" onclick="startTrackingWithCheck()">开始追踪</button>
+        <button class="control-button stop-tracking" onclick="stopTracking()">停止追踪</button>
+        <button class="control-button clear-paths" onclick="clearPaths()">清除轨迹</button>
+        <button class="control-button show-all" onclick="showAllDrones()">显示所有</button>
+        <button class="control-button test-collision" onclick="testCollisionDetection()">测试碰撞</button>
+    </div>
+
+    <div class="map-container">
+        <img id="drone-map" src="" alt="地图" />
+        <canvas id="position-canvas" class="drone-path"></canvas>
+    </div>
+
+    <script>
+        // 1. 调试：打印URL参数，确认是否正确获取
+        const serialNumber = new URLSearchParams(window.location.search).get('serial');
+        const senderAddress = new URLSearchParams(window.location.search).get('sender_address');
+        const receiverAddress = new URLSearchParams(window.location.search).get('receiver_address');
+        console.log("获取到的参数：", { serialNumber, senderAddress, receiverAddress });
+
+        const dronePaths = new Map();
+        let collisionAlertShown = false; // 防止重复显示碰撞警报
+        let collisionCheckInterval = null; // 碰撞检测定时器
+
+        // 计算两点距离的函数
+        function calculateDistance(x1, y1, x2, y2) {
+            return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+        }
+
+        // 碰撞检测函数
+        function checkCollision(drones) {
+            if (!drones || drones.length < 2) return;
+            
+            const flyingDrones = drones.filter(drone => 
+                drone.current_status === 'in_flight' && drone.current_position
+            );
+            
+            if (flyingDrones.length < 2) return;
+            
+            // 检查每对无人机之间的距离
+            for (let i = 0; i < flyingDrones.length; i++) {
+                for (let j = i + 1; j < flyingDrones.length; j++) {
+                    const drone1 = flyingDrones[i];
+                    const drone2 = flyingDrones[j];
+                    
+                    if (drone1.current_position && drone2.current_position) {
+                        const distance = calculateDistance(
+                            drone1.current_position.x, drone1.current_position.y,
+                            drone2.current_position.x, drone2.current_position.y
+                        );
+                        
+                        // 如果距离小于2个单位，认为发生碰撞
+                        if (distance < 2) {
+                            handleCollision(drone1, drone2, distance);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 处理碰撞事件
+        function handleCollision(drone1, drone2, distance) {
+            if (collisionAlertShown) return; // 防止重复显示
+            
+            collisionAlertShown = true;
+            
+            // 更新碰撞检测状态
+            const statusElement = document.getElementById('collision-status');
+            if (statusElement) {
+                statusElement.textContent = '🔴 碰撞警报！';
+                statusElement.style.color = '#ef4444';
+            }
+            
+            // 停止所有追踪
+            stopTracking();
+            
+            // 清除碰撞检测定时器
+            if (collisionCheckInterval) {
+                clearInterval(collisionCheckInterval);
+                collisionCheckInterval = null;
+            }
+            
+            // 播放警报声音（如果浏览器支持）
+            playAlarmSound();
+            
+            // 显示碰撞警报弹窗
+            showCollisionAlert(drone1, drone2, distance);
+            
+            // 在地图上高亮显示碰撞位置
+            highlightCollision(drone1, drone2);
+            
+            // 发送紧急停止命令到后端
+            emergencyStop();
+        }
+
+        // 播放警报声音
+        function playAlarmSound() {
+            try {
+                // 创建音频上下文
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // 设置警报音调
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime + 0.2);
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (error) {
+                console.log('无法播放警报声音:', error);
+            }
+        }
+
+        // 显示碰撞警报弹窗
+        function showCollisionAlert(drone1, drone2, distance) {
+            // 创建模态弹窗
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            const alertBox = document.createElement('div');
+            alertBox.style.cssText = `
+                background: linear-gradient(135deg, #ef4444, #dc2626);
+                color: white;
+                padding: 40px;
+                border-radius: 20px;
+                text-align: center;
+                max-width: 500px;
+                width: 90%;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                animation: slideIn 0.3s ease;
+                border: 3px solid #fca5a5;
+            `;
+            
+            alertBox.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 20px;">🚨</div>
+                <h2 style="font-size: 28px; margin-bottom: 20px; color: #fef2f2;">碰撞警报！</h2>
+                <div style="font-size: 18px; margin-bottom: 15px;">
+                    检测到无人机碰撞风险！
+                </div>
+                <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="margin-bottom: 10px;">
+                        <strong>碰撞无人机:</strong><br>
+                        ${drone1.serial_number} (${drone1.model || '未知型号'})<br>
+                        位置: (${drone1.current_position.x}, ${drone1.current_position.y})
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>与:</strong><br>
+                        ${drone2.serial_number} (${drone2.model || '未知型号'})<br>
+                        位置: (${drone2.current_position.x}, ${drone2.current_position.y})
+                    </div>
+                    <div style="color: #fca5a5; font-weight: bold;">
+                        距离: ${distance.toFixed(2)} 单位
+                    </div>
+                </div>
+                <div style="font-size: 16px; margin-bottom: 25px; color: #fef2f2;">
+                    所有无人机已紧急停止！请立即检查并处理。
+                </div>
+                <button onclick="closeCollisionAlert()" style="
+                    background: rgba(255, 255, 255, 0.2);
+                    color: white;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    padding: 12px 30px;
+                    border-radius: 25px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+                   onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    确认并关闭
+                </button>
+            `;
+            
+            modal.appendChild(alertBox);
+            document.body.appendChild(modal);
+            
+            // 添加CSS动画
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes slideIn {
+                    from { transform: translateY(-50px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // 关闭碰撞警报
+        function closeCollisionAlert() {
+            const modal = document.querySelector('div[style*="z-index: 10000"]');
+            if (modal) {
+                modal.remove();
+            }
+            collisionAlertShown = false;
+            
+            // 重置碰撞检测状态
+            const statusElement = document.getElementById('collision-status');
+            if (statusElement) {
+                statusElement.textContent = '🟢 正常';
+                statusElement.style.color = '#10b981';
+            }
+        }
+
+        // 在地图上高亮显示碰撞位置
+        function highlightCollision(drone1, drone2) {
+            if (!canvasCtx) return;
+            
+            // 清除画布
+            canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
+            
+            const pos1 = drone1.current_position;
+            const pos2 = drone2.current_position;
+            
+            const canvasX1 = pos1.y * (canvasCtx.canvas.width / 60);  // Y轴映射到Canvas的X轴
+            const canvasY1 = pos1.x * (canvasCtx.canvas.height / 60); // X轴映射到Canvas的Y轴
+            const canvasX2 = pos2.y * (canvasCtx.canvas.width / 60);  // Y轴映射到Canvas的X轴
+            const canvasY2 = pos2.x * (canvasCtx.canvas.height / 60); // X轴映射到Canvas的Y轴
+            
+            // 绘制碰撞区域（红色圆圈）
+            canvasCtx.beginPath();
+            canvasCtx.arc(canvasX1, canvasY1, 25, 0, 2 * Math.PI);
+            canvasCtx.strokeStyle = "#ef4444";
+            canvasCtx.lineWidth = 4;
+            canvasCtx.setLineDash([10, 5]);
+            canvasCtx.stroke();
+            canvasCtx.setLineDash([]);
+            
+            canvasCtx.beginPath();
+            canvasCtx.arc(canvasX2, canvasY2, 25, 0, 2 * Math.PI);
+            canvasCtx.strokeStyle = "#ef4444";
+            canvasCtx.lineWidth = 4;
+            canvasCtx.setLineDash([10, 5]);
+            canvasCtx.stroke();
+            canvasCtx.setLineDash([]);
+            
+            // 绘制无人机位置
+            canvasCtx.beginPath();
+            canvasCtx.arc(canvasX1, canvasY1, 10, 0, 2 * Math.PI);
+            canvasCtx.fillStyle = "#ef4444";
+            canvasCtx.shadowColor = "#ef4444";
+            canvasCtx.shadowBlur = 15;
+            canvasCtx.fill();
+            
+            canvasCtx.beginPath();
+            canvasCtx.arc(canvasX2, canvasY2, 10, 0, 2 * Math.PI);
+            canvasCtx.fillStyle = "#ef4444";
+            canvasCtx.shadowColor = "#ef4444";
+            canvasCtx.shadowBlur = 15;
+            canvasCtx.fill();
+            
+            // 显示无人机编号
+            canvasCtx.fillStyle = "white";
+            canvasCtx.font = "14px Arial";
+            canvasCtx.fontWeight = "bold";
+            canvasCtx.fillText(drone1.serial_number.slice(-3), canvasX1 + 12, canvasY1 - 12);
+            canvasCtx.fillText(drone2.serial_number.slice(-3), canvasX2 + 12, canvasY2 - 12);
+            
+            // 绘制连接线
+            canvasCtx.strokeStyle = "#ef4444";
+            canvasCtx.lineWidth = 3;
+            canvasCtx.setLineDash([5, 5]);
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(canvasX1, canvasY1);
+            canvasCtx.lineTo(canvasX2, canvasY2);
+            canvasCtx.stroke();
+            canvasCtx.setLineDash([]);
+            
+            // 更新信息显示
+            document.getElementById('position-info').textContent = 
+                `🚨 碰撞警报！无人机 ${drone1.serial_number} 与 ${drone2.serial_number} 发生碰撞 | 距离: ${calculateDistance(pos1.x, pos1.y, pos2.x, pos2.y).toFixed(2)} 单位 | 时间: ${new Date().toLocaleTimeString()}`;
+        }
+
+        // 紧急停止所有无人机
+        function emergencyStop() {
+            console.log('执行紧急停止命令');
+            
+            // 这里可以调用后端API来停止所有无人机
+            fetch('/logistics/api/emergency_stop/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    reason: 'collision_detected',
+                    timestamp: new Date().toISOString()
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('紧急停止响应:', data);
+            })
+            .catch(error => {
+                console.error('紧急停止失败:', error);
+            });
+        }
+
+        // 测试碰撞检测功能
+        function testCollisionDetection() {
+            console.log('测试碰撞检测功能');
+            
+            // 创建模拟的碰撞数据
+            const mockDrone1 = {
+                serial_number: 'TEST001',
+                model: '测试无人机1',
+                current_status: 'in_flight',
+                current_position: { x: 30, y: 30 }
+            };
+            
+            const mockDrone2 = {
+                serial_number: 'TEST002',
+                model: '测试无人机2',
+                current_status: 'in_flight',
+                current_position: { x: 31, y: 31 }
+            };
+            
+            // 手动触发碰撞检测
+            handleCollision(mockDrone1, mockDrone2, 1.41);
+        }
+
+        // 获取当前执行任务的无人机信息
+        function getActiveDrones() {
+            fetch('/logistics/api/get_all_drones_status/')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('获取到的无人机数据:', data);
+                    if (data.success) {
+                        // 添加详细的调试信息
+                        console.log('所有无人机数量:', data.drones.length);
+                        data.drones.forEach((drone, index) => {
+                            console.log(`无人机 ${index + 1}:`, {
+                                serial_number: drone.serial_number,
+                                current_status: drone.current_status,
+                                current_position: drone.current_position,
+                                goods_status: drone.goods_status
+                            });
+                        });
+                        
+                        // 过滤飞行中的无人机
+                        const flyingDrones = data.drones.filter(drone => drone.current_status === 'in_flight');
+                        console.log('飞行中的无人机数量:', flyingDrones.length);
+                        flyingDrones.forEach((drone, index) => {
+                            console.log(`飞行中无人机 ${index + 1}:`, drone);
+                        });
+                        
+                        // 执行碰撞检测
+                        checkCollision(data.drones);
+                        
+                        updateActiveDronesDisplay(data.drones);
+                    } else {
+                        console.error('获取无人机状态失败:', data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('获取无人机状态出错:', error);
+                });
+        }
+
+        // 更新活跃无人机显示
+        function updateActiveDronesDisplay(drones) {
+            const container = document.getElementById('active-drones-container');
+            container.innerHTML = '';
+
+            console.log('所有无人机:', drones);
+
+            // 过滤出正在执行任务的无人机
+            const activeDrones = drones.filter(drone => 
+                drone.current_status === 'in_flight' && drone.current_position
+            );
+
+            console.log('活跃无人机:', activeDrones);
+
+            // 更新侧边栏标题显示无人机数量
+            const sidebarTitle = document.querySelector('.sidebar-title');
+            if (sidebarTitle) {
+                sidebarTitle.textContent = `执行任务无人机 (${activeDrones.length})`;
+            }
+
+            // 更新统计信息
+            document.getElementById('active-count').textContent = activeDrones.length;
+            let totalPaths = 0;
+            dronePaths.forEach(path => {
+                totalPaths += path.length;
+            });
+            document.getElementById('total-paths').textContent = totalPaths;
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+
+            if (activeDrones.length === 0) {
+                container.innerHTML = '<div class="drone-card"><p style="text-align: center; color: #6b7280;">暂无执行任务的无人机</p></div>';
+                return;
+            }
+
+            activeDrones.forEach(drone => {
+                const droneCard = createDroneCard(drone);
+                container.appendChild(droneCard);
+                
+                // 为每个活跃无人机记录路径
+                recordDronePath(drone);
+            });
+        }
+
+        // 记录无人机路径
+        function recordDronePath(drone) {
+            if (!canvasCtx || !drone.current_position) return;
+            
+            const position = drone.current_position;
+            const gridX = position.x;
+            const gridY = position.y;
+            
+            // 计算Canvas坐标（竖着是X轴，横着是Y轴）
+            const canvasX = gridY * (canvasCtx.canvas.width / 60);  // Y轴映射到Canvas的X轴
+            const canvasY = gridX * (canvasCtx.canvas.height / 60); // X轴映射到Canvas的Y轴
+            
+            // 记录轨迹
+            if (!dronePaths.has(drone.serial_number)) {
+                dronePaths.set(drone.serial_number, []);
+            }
+            const path = dronePaths.get(drone.serial_number);
+            path.push({x: canvasX, y: canvasY});
+            if (path.length > 50) path.shift();
+        }
+
+        // 创建无人机卡片
+        function createDroneCard(drone) {
+            const card = document.createElement('div');
+            card.className = 'drone-card';
+
+            // ABCD点的实际坐标（根据后端代码）
+            const abcdPoints = {
+                'A': { x: 8, y: 8 },      // 左上角
+                'B': { x: 52, y: 8 },     // 左下角（竖着是X轴）
+                'C': { x: 8, y: 52 },     // 右上角（横着是Y轴）
+                'D': { x: 30, y: 30 }     // 中心点
+            };
+
+            // 计算到各个终点的距离
+            const currentX = drone.current_position.x;
+            const currentY = drone.current_position.y;
+            
+            let minDistance = Infinity;
+            let nearestGoal = 'A';
+            
+            Object.keys(abcdPoints).forEach(point => {
+                const dist = calculateDistance(currentX, currentY, abcdPoints[point].x, abcdPoints[point].y);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    nearestGoal = point;
+                }
+            });
+
+            const goalX = abcdPoints[nearestGoal].x;
+            const goalY = abcdPoints[nearestGoal].y;
+
+            card.innerHTML = `
+                <div class="drone-header">
+                    <span class="drone-icon">🚁</span>
+                    <h4 class="drone-title">${drone.serial_number}</h4>
+                    <span class="drone-status">执行中</span>
+                </div>
+                <div class="drone-details">
+                    <div class="detail-row">
+                        <span class="detail-label">型号:</span>
+                        <span class="detail-value">${drone.model || '未知'}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">当前位置:</span>
+                        <span class="detail-value">(${currentX}, ${currentY})</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">最近终点:</span>
+                        <span class="detail-value">${nearestGoal} (${goalX}, ${goalY})</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">货物状态:</span>
+                        <span class="detail-value">${drone.in_transit ? '正在配送' : (drone.goods_status === '已送达' ? '已送达' : (drone.goods_status === '无货物' ? '无货物' : '待配送'))}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">更新时间:</span>
+                        <span class="detail-value">${new Date().toLocaleTimeString()}</span>
+                    </div>
+                </div>
+                <div class="distance-info">
+                    <div class="distance-title">距离最近终点</div>
+                    <div class="distance-value">${minDistance.toFixed(2)} 单位</div>
+                    ${minDistance < 5 ? '<div style="color: #10b981; font-size: 12px; text-align: center; margin-top: 5px;">🚁 接近终点！</div>' : ''}
+                </div>
+                <button class="show-route-btn" onclick="showDroneRoute('${drone.serial_number}')">
+                    显示路线
+                </button>
+                <button class="show-route-btn" onclick="highlightDrone('${drone.serial_number}')" style="margin-top: 8px; background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    高亮显示
+                </button>
+                <button class="show-route-btn" onclick="showDroneTarget('${drone.serial_number}', '${nearestGoal}', ${goalX}, ${goalY})" style="margin-top: 8px; background: linear-gradient(135deg, #ef4444, #dc2626);">
+                    显示目标
+                </button>
+            `;
+
+            return card;
+        }
+
+        // 显示无人机目标
+        function showDroneTarget(droneSerial, targetPoint, targetX, targetY) {
+            console.log('显示无人机目标:', droneSerial, targetPoint, targetX, targetY);
+            
+            // 获取该无人机的当前位置
+            fetch('/logistics/api/get_all_drones_status/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const targetDrone = data.drones.find(d => d.serial_number === droneSerial);
+                        if (targetDrone?.current_position) {
+                            // 清除画布
+                            canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
+                            
+                            const position = targetDrone.current_position;
+                            const gridX = position.x;
+                            const gridY = position.y;
+                            const canvasX = gridY * (canvasCtx.canvas.width / 60);  // Y轴映射到Canvas的X轴
+                            const canvasY = gridX * (canvasCtx.canvas.height / 60); // X轴映射到Canvas的Y轴
+                            
+                            // 计算目标点的Canvas坐标
+                            const targetCanvasX = targetY * (canvasCtx.canvas.width / 60);  // Y轴映射到Canvas的X轴
+                            const targetCanvasY = targetX * (canvasCtx.canvas.height / 60); // X轴映射到Canvas的Y轴
+                            
+                            // 绘制无人机到目标的连线
+                            canvasCtx.strokeStyle = "#ef4444";
+                            canvasCtx.lineWidth = 3;
+                            canvasCtx.setLineDash([8, 4]);
+                            canvasCtx.beginPath();
+                            canvasCtx.moveTo(canvasX, canvasY);
+                            canvasCtx.lineTo(targetCanvasX, targetCanvasY);
+                            canvasCtx.stroke();
+                            canvasCtx.setLineDash([]); // 重置虚线样式
+                            
+                            // 绘制无人机位置
+                            canvasCtx.beginPath();
+                            canvasCtx.arc(canvasX, canvasY, 8, 0, 2 * Math.PI);
+                            canvasCtx.fillStyle = "#10b981";
+                            canvasCtx.shadowColor = "#10b981";
+                            canvasCtx.shadowBlur = 10;
+                            canvasCtx.fill();
+                            
+                            // 绘制目标点
+                            canvasCtx.beginPath();
+                            canvasCtx.arc(targetCanvasX, targetCanvasY, 10, 0, 2 * Math.PI);
+                            canvasCtx.fillStyle = "#ef4444";
+                            canvasCtx.shadowColor = "#ef4444";
+                            canvasCtx.shadowBlur = 10;
+                            canvasCtx.fill();
+                            
+                            // 显示无人机编号
+                            canvasCtx.fillStyle = "black";
+                            canvasCtx.font = "12px Arial";
+                            canvasCtx.fillText(droneSerial.slice(-3), canvasX + 10, canvasY - 10);
+                            
+                            // 显示目标点标识
+                            canvasCtx.fillStyle = "white";
+                            canvasCtx.font = "14px Arial";
+                            canvasCtx.fontWeight = "bold";
+                            canvasCtx.fillText(targetPoint, targetCanvasX - 4, targetCanvasY + 4);
+                            
+                            // 计算距离
+                            const distance = calculateDistance(gridX, gridY, targetX, targetY);
+                            
+                            // 更新信息显示
+                            document.getElementById('position-info').textContent = 
+                                `无人机 ${droneSerial} → 目标 ${targetPoint} | 距离: ${distance.toFixed(2)} 单位 | 最后更新: ${new Date().toLocaleTimeString()}`;
+                            
+                            console.log(`已显示无人机 ${droneSerial} 到目标 ${targetPoint} 的连线，距离: ${distance.toFixed(2)} 单位`);
+                        } else {
+                            document.getElementById('position-info').textContent = 
+                                `无人机 ${droneSerial} 暂无位置数据`;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('获取无人机位置失败:', error);
+                    document.getElementById('position-info').textContent = 
+                        `获取无人机 ${droneSerial} 位置失败`;
+                });
+        }
+
+        // 高亮显示特定无人机
+        function highlightDrone(droneSerial) {
+            console.log('高亮显示无人机:', droneSerial);
+            
+            // 获取该无人机的当前位置
+            fetch('/logistics/api/get_all_drones_status/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const targetDrone = data.drones.find(d => d.serial_number === droneSerial);
+                        if (targetDrone?.current_position) {
+                            // 清除画布
+                            canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
+                            
+                            const position = targetDrone.current_position;
+                            const gridX = position.x;
+                            const gridY = position.y;
+                            const canvasX = gridY * (canvasCtx.canvas.width / 60);  // Y轴映射到Canvas的X轴
+                            const canvasY = gridX * (canvasCtx.canvas.height / 60); // X轴映射到Canvas的Y轴
+                            
+                            // 绘制高亮圆圈
+                            canvasCtx.beginPath();
+                            canvasCtx.arc(canvasX, canvasY, 20, 0, 2 * Math.PI);
+                            canvasCtx.strokeStyle = "#f59e0b";
+                            canvasCtx.lineWidth = 3;
+                            canvasCtx.stroke();
+                            
+                            // 绘制无人机位置
+                            canvasCtx.beginPath();
+                            canvasCtx.arc(canvasX, canvasY, 8, 0, 2 * Math.PI);
+                            canvasCtx.fillStyle = "#f59e0b";
+                            canvasCtx.shadowColor = "#f59e0b";
+                            canvasCtx.shadowBlur = 15;
+                            canvasCtx.fill();
+                            
+                            // 显示无人机编号
+                            canvasCtx.fillStyle = "black";
+                            canvasCtx.font = "14px Arial";
+                            canvasCtx.fontWeight = "bold";
+                            canvasCtx.fillText(droneSerial, canvasX + 12, canvasY - 12);
+                            
+                            // 显示位置信息
+                            canvasCtx.fillStyle = "#374151";
+                            canvasCtx.font = "12px Arial";
+                            canvasCtx.fillText(`(${gridX}, ${gridY})`, canvasX + 12, canvasY + 4);
+                            
+                            // 更新信息显示
+                            document.getElementById('position-info').textContent = 
+                                `高亮显示无人机 ${droneSerial} | 位置: (${gridX}, ${gridY}) | 状态: ${targetDrone.current_status} | 最后更新: ${new Date().toLocaleTimeString()}`;
+                            
+                            console.log(`已高亮显示无人机 ${droneSerial}，位置: (${gridX}, ${gridY})`);
+                        } else {
+                            document.getElementById('position-info').textContent = 
+                                `无人机 ${droneSerial} 暂无位置数据`;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('获取无人机位置失败:', error);
+                    document.getElementById('position-info').textContent = 
+                        `获取无人机 ${droneSerial} 位置失败`;
+                });
+        }
+
+        // 显示所有无人机位置
+        function showAllDrones() {
+            console.log('显示所有无人机位置');
+            
+            // 获取所有无人机数据
+            fetch('/logistics/api/get_all_drones_status/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 清除画布
+                        canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
+                        
+                        let activeCount = 0;
+                        
+                        const dronePositions = [];
+                        
+                        data.drones.forEach(drone => {
+                            if (drone.current_position) {
+                                const position = drone.current_position;
+                                const gridX = position.x;
+                                const gridY = position.y;
+                                const canvasX = gridY * (canvasCtx.canvas.width / 60);  // Y轴映射到Canvas的X轴
+                                const canvasY = gridX * (canvasCtx.canvas.height / 60); // X轴映射到Canvas的Y轴
+                                
+                                dronePositions.push({
+                                    serial: drone.serial_number,
+                                    x: canvasX,
+                                    y: canvasY,
+                                    status: drone.current_status
+                                });
+                                
+                                // 根据无人机状态选择颜色
+                                let color = "#6b7280"; // 默认灰色
+                                if (drone.current_status === 'in_flight') {
+                                    color = "#10b981"; // 绿色 - 飞行中
+                                    activeCount++;
+                                } else if (drone.current_status === 'in_stock') {
+                                    color = "#3b82f6"; // 蓝色 - 在库
+                                } else if (drone.current_status === 'maintenance') {
+                                    color = "#f59e0b"; // 橙色 - 维护中
+                                }
+                                
+                                // 绘制无人机位置
+                                canvasCtx.beginPath();
+                                canvasCtx.arc(canvasX, canvasY, 6, 0, 2 * Math.PI);
+                                canvasCtx.fillStyle = color;
+                                canvasCtx.shadowColor = color;
+                                canvasCtx.shadowBlur = 8;
+                                canvasCtx.fill();
+                                
+                                // 显示无人机编号
+                                canvasCtx.fillStyle = "black";
+                                canvasCtx.font = "10px Arial";
+                                canvasCtx.fillText(drone.serial_number.slice(-3), canvasX + 8, canvasY - 8);
+                            }
+                        });
+                        
+                        // 绘制无人机之间的连线（只连接飞行中的无人机）
+                        const flyingDrones = dronePositions.filter(drone => drone.status === 'in_flight');
+                        if (flyingDrones.length > 1) {
+                            canvasCtx.strokeStyle = "rgba(16, 185, 129, 0.3)";
+                            canvasCtx.lineWidth = 2;
+                            canvasCtx.setLineDash([5, 5]);
+                            
+                            for (let i = 0; i < flyingDrones.length - 1; i++) {
+                                canvasCtx.beginPath();
+                                canvasCtx.moveTo(flyingDrones[i].x, flyingDrones[i].y);
+                                canvasCtx.lineTo(flyingDrones[i + 1].x, flyingDrones[i + 1].y);
+                                canvasCtx.stroke();
+                            }
+                            
+                            canvasCtx.setLineDash([]); // 重置虚线样式
+                        }
+                        
+                        // 更新信息显示
+                        document.getElementById('position-info').textContent = 
+                            `显示所有无人机位置 | 活跃无人机: ${activeCount} | 总无人机: ${data.drones.length} | 最后更新: ${new Date().toLocaleTimeString()}`;
+                        
+                        console.log(`已显示所有无人机位置，共 ${data.drones.length} 架无人机，其中 ${activeCount} 架活跃`);
+                    }
+                })
+                .catch(error => {
+                    console.error('获取所有无人机位置失败:', error);
+                    document.getElementById('position-info').textContent = 
+                        `获取所有无人机位置失败: ${error.message}`;
+                });
+        }
+
+        // 显示无人机路线
+        function showDroneRoute(droneSerial) {
+            console.log('显示无人机路线:', droneSerial);
+            
+            // 获取该无人机的路径数据
+            const path = dronePaths.get(droneSerial);
+            if (path && path.length > 0) {
+                // 清除画布
+                canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
+                
+                // 绘制该无人机的完整路径
+                canvasCtx.strokeStyle = "#667eea";
+                canvasCtx.lineWidth = 4;
+                canvasCtx.beginPath();
+                path.forEach((p, i) => {
+                    if (i === 0) canvasCtx.moveTo(p.x, p.y);
+                    else canvasCtx.lineTo(p.x, p.y);
+                });
+                canvasCtx.stroke();
+                
+                // 在路径起点和终点添加标记
+                if (path.length > 0) {
+                    // 起点标记
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(path[0].x, path[0].y, 6, 0, 2 * Math.PI);
+                    canvasCtx.fillStyle = "#10b981";
+                    canvasCtx.fill();
+                    
+                    // 终点标记
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(path[path.length - 1].x, path[path.length - 1].y, 6, 0, 2 * Math.PI);
+                    canvasCtx.fillStyle = "#ef4444";
+                    canvasCtx.fill();
+                }
+                
+                // 显示无人机编号
+                if (path.length > 0) {
+                    const lastPoint = path[path.length - 1];
+                    canvasCtx.fillStyle = "black";
+                    canvasCtx.font = "12px Arial";
+                    canvasCtx.fillText(droneSerial.slice(-4), lastPoint.x + 10, lastPoint.y - 10);
+                }
+                
+                // 更新信息显示
+                document.getElementById('position-info').textContent = 
+                    `显示无人机 ${droneSerial} 的路线轨迹 | 路径点数: ${path.length} | 最后更新: ${new Date().toLocaleTimeString()}`;
+                
+                console.log(`已显示无人机 ${droneSerial} 的路线轨迹，共 ${path.length} 个路径点`);
+            } else {
+                // 如果没有路径数据，尝试获取该无人机的当前位置并显示
+                fetch('/logistics/api/get_all_drones_status/')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const targetDrone = data.drones.find(d => d.serial_number === droneSerial);
+                            if (targetDrone?.current_position) {
+                                // 显示当前位置
+                                const position = targetDrone.current_position;
+                                const gridX = position.x;
+                                const gridY = position.y;
+                                const canvasX = gridY * (canvasCtx.canvas.width / 60);  // Y轴映射到Canvas的X轴
+                                const canvasY = gridX * (canvasCtx.canvas.height / 60); // X轴映射到Canvas的Y轴
+                                
+                                // 清除画布
+                                canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
+                                
+                                // 绘制当前位置
+                                canvasCtx.beginPath();
+                                canvasCtx.arc(canvasX, canvasY, 8, 0, 2 * Math.PI);
+                                canvasCtx.fillStyle = "#667eea";
+                                canvasCtx.shadowColor = "#667eea";
+                                canvasCtx.shadowBlur = 10;
+                                canvasCtx.fill();
+                                
+                                // 显示无人机编号
+                                canvasCtx.fillStyle = "black";
+                                canvasCtx.font = "12px Arial";
+                                canvasCtx.fillText(droneSerial.slice(-4), canvasX + 10, canvasY - 10);
+                                
+                                document.getElementById('position-info').textContent = 
+                                    `无人机 ${droneSerial} 当前位置：(${gridX}, ${gridY}) | 暂无路径数据`;
+                            } else {
+                                document.getElementById('position-info').textContent = 
+                                    `无人机 ${droneSerial} 暂无位置数据`;
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('获取无人机位置失败:', error);
+                        document.getElementById('position-info').textContent = 
+                            `获取无人机 ${droneSerial} 位置失败`;
+                    });
+            }
+        }
+        let canvasCtx = null;
+        let trackingInterval = null;
+        // 新增：地图格子总数（根据12地图页的逻辑，现在是60x60）
+        const GRID_SIZE = 60;
+
+        // 2. 修复Canvas初始化逻辑：确保尺寸正确
+        function initCanvas() {
+  const mapImg = document.getElementById('drone-map');
+  const canvas = document.getElementById('position-canvas');
+  mapImg.onload = function() {
+    // 强制Canvas尺寸与地图图片的实际渲染尺寸完全一致
+    canvas.width = mapImg.offsetWidth;  // 用offsetWidth而非naturalWidth，确保匹配页面缩放
+    canvas.height = mapImg.offsetHeight;
+    canvasCtx = canvas.getContext('2d');
+  };
+  if (mapImg.complete) mapImg.onload(); // 处理缓存图片
+}
+
+
+
+        function redrawPath() {
+            if (!canvasCtx ||!dronePaths.has(serialNumber)) return;
+            
+            const path = dronePaths.get(serialNumber);
+            if (path.length > 1) {
+                canvasCtx.strokeStyle = "#ff4444";
+                canvasCtx.lineWidth = 3;
+                canvasCtx.beginPath();
+                path.forEach((p, i) => {
+                    if (i === 0) canvasCtx.moveTo(p.x, p.y);
+                    else canvasCtx.lineTo(p.x, p.y);
+                });
+                canvasCtx.stroke();
+            }
+        }
+
+        // 3. 修复地图加载：适配API参数，增加错误调试
+        function loadMapImage() {
+    const routeInfo = document.getElementById('route-info');
+    // 验证参数是否存在
+    if (!senderAddress ||!receiverAddress) {
+        routeInfo.textContent = "错误：URL中缺少sender_address或receiver_address参数";
+        console.error("参数缺失：", { senderAddress, receiverAddress });
+        return;
+    }
+
+    // 1. 定义12地图页支持的合法起点终点（单字母标识）
+    const validPoints = ['A', 'B', 'C', 'D'];
+    
+    // 2. 标准化处理：提取首字母并转换为大写
+    const rawStart = senderAddress.trim().toUpperCase();
+    const rawGoal = receiverAddress.trim().toUpperCase();
+    
+    // 3. 提取有效标识（优先完整匹配，否则取首字母）
+    let start = validPoints.includes(rawStart)? rawStart : rawStart.charAt(0);
+    let goal = validPoints.includes(rawGoal)? rawGoal : rawGoal.charAt(0);
+    
+    // 4. 最终校验：确保参数在合法范围内
+    if (!validPoints.includes(start)) start = 'A'; // 非法值默认A
+    if (!validPoints.includes(goal)) goal = 'B';   // 非法值默认B
+    if (start === goal) goal = validPoints.find(p => p!== start) || 'B'; // 避免起点终点相同
+
+    // 5. 显示标准化后的信息（便于调试）
+    console.log("参数标准化：", {
+        原始起点: senderAddress,
+        原始终点: receiverAddress,
+        标准化起点: start,
+        标准化终点: goal
+    });
+    routeInfo.textContent = `正在加载路径：${start} → ${goal}（已标准化参数）`;
+
+    // 6. 调用API时使用标准化后的参数（与12地图页完全一致）
+    fetch("/logistics/api/plan_path/", {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie('csrftoken')
+        },
+        body: JSON.stringify({ 
+            start: start,  // 确保是A/B/C/D
+            goal: goal     // 确保是A/B/C/D
+        }),
+    })
+   .then(response => {
+        console.log("地图API响应状态：", response.status);
+        if (!response.ok) {
+            return response.text().then(text => { throw new Error(`API错误：${text}`) });
+        }
+        return response.blob();
+    })
+   .then(blob => {
+        const url = URL.createObjectURL(blob);
+        document.getElementById('drone-map').src = url;
+        routeInfo.textContent = `路径信息：${start} → ${goal}（地图加载成功）`;
+    })
+   .catch(error => {
+        console.error("地图加载失败：", error);
+        routeInfo.textContent = `地图加载失败：${error.message}（参数：${start}→${goal}）`;
+    });
+}
+
+
+        // 4. 完善CSRF令牌获取
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie!== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            console.log("获取到的CSRF令牌：", cookieValue || "未找到");
+            return cookieValue;
+        }
+
+        // 5. 修复位置追踪：增加数据验证
+        function startTracking() {
+            if (trackingInterval) clearInterval(trackingInterval);
+            trackingInterval = setInterval(fetchPosition, 3000);
+            fetchPosition();
+            document.getElementById('position-info').textContent = "开始追踪无人机位置...";
+        }
+
+        // 如果没有特定无人机序列号，显示所有无人机
+        function startTrackingAll() {
+            if (trackingInterval) clearInterval(trackingInterval);
+            trackingInterval = setInterval(showAllDrones, 3000);
+            showAllDrones();
+            document.getElementById('position-info').textContent = "开始追踪所有无人机位置...";
+        }
+
+        // 检查是否有特定无人机序列号，决定调用哪个追踪函数
+        function startTrackingWithCheck() {
+            if (serialNumber) {
+                startTracking();
+            } else {
+                startTrackingAll();
+            }
+            
+            // 重新启动碰撞检测
+            if (!collisionCheckInterval) {
+                collisionCheckInterval = setInterval(() => {
+                    getActiveDrones(); // 这会触发碰撞检测
+                }, 2000);
+            }
+        }
+
+        function stopTracking() {
+            if (trackingInterval) {
+                clearInterval(trackingInterval);
+                trackingInterval = null;
+            }
+            
+            // 停止碰撞检测
+            if (collisionCheckInterval) {
+                clearInterval(collisionCheckInterval);
+                collisionCheckInterval = null;
+            }
+            
+            document.getElementById('position-info').textContent = "已停止追踪";
+        }
+
+        function clearPaths() {
+            // 清除所有无人机的路径
+            dronePaths.clear();
+            if (canvasCtx) {
+                canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
+                console.log("已清除所有路径");
+            }
+        }
+
+        // 6. 修复坐标映射：与地图尺寸严格匹配
+        function fetchPosition() {
+            // 如果没有特定无人机序列号，显示所有无人机
+            if (!serialNumber) {
+                showAllDrones();
+                return;
+            }
+            
+            fetch("/logistics/api/get_active_drones/")
+               .then(response => {
+                    if (!response.ok) throw new Error("获取数据失败，状态码：" + response.status);
+                    return response.json();
+                })
+               .then(data => {
+                    console.log("获取到的无人机数据：", data);
+                    if (data.success) {
+                        const targetDrone = data.drones.find(d => d.serial_number === serialNumber);
+                        if (targetDrone?.current_position || targetDrone?.position) {
+                            updatePosition(targetDrone);
+                        } else {
+                            document.getElementById('position-info').textContent = "未找到该无人机的位置数据";
+                        }
+                    } else {
+                        throw new Error("API返回失败：" + (data.message || "未知错误"));
+                    }
+                })
+               .catch(error => {
+                    console.error("位置获取失败：", error);
+                    document.getElementById('position-info').textContent = `获取位置失败：${error.message}`;
+                });
+        }
+
+        function updatePosition(drone) {
+            if (!canvasCtx) {
+                console.error("Canvas未初始化，无法绘制");
+                return;
+            }
+
+            // 验证位置数据完整性 - 适配新的API数据结构
+            const position = drone.current_position || drone.position;
+            if (!position || position.x === undefined || position.y === undefined) {
+                console.error("位置数据不完整：", position);
+                return;
+            }
+
+            // 清除画布
+            canvasCtx.clearRect(0, 0, canvasCtx.canvas.width, canvasCtx.canvas.height);
+
+            // 格子坐标转Canvas坐标（严格按照地图尺寸计算）
+            const gridX = position.x;
+            const gridY = position.y;
+            // 确保坐标在有效范围内（0到GRID_SIZE）
+            if (gridX < 0 || gridX > GRID_SIZE || gridY < 0 || gridY > GRID_SIZE) {
+                console.error("无效的格子坐标：", gridX, gridY);
+                return;
+            }
+
+            // 计算Canvas坐标（竖着是X轴，横着是Y轴）
+            const canvasX = gridY * (canvasCtx.canvas.width / 60);  // Y轴映射到Canvas的X轴
+            const canvasY = gridX * (canvasCtx.canvas.height / 60); // X轴映射到Canvas的Y轴
+            console.log("坐标映射：", { gridX, gridY, canvasX, canvasY });
+
+            // 记录轨迹
+            if (!dronePaths.has(serialNumber)) {
+                dronePaths.set(serialNumber, []);
+            }
+            const path = dronePaths.get(serialNumber);
+            path.push({x: canvasX, y: canvasY});
+            if (path.length > 50) path.shift();
+
+            // 绘制轨迹线
+            if (path.length > 1) {
+                canvasCtx.strokeStyle = "#ff4444";
+                canvasCtx.lineWidth = 3;
+                canvasCtx.beginPath();
+                path.forEach((p, i) => {
+                    if (i === 0) canvasCtx.moveTo(p.x, p.y);
+                    else canvasCtx.lineTo(p.x, p.y);
+                });
+                canvasCtx.stroke();
+            }
+
+            // 绘制当前位置
+            canvasCtx.beginPath();
+            canvasCtx.arc(canvasX, canvasY, 8, 0, 2 * Math.PI);
+            canvasCtx.fillStyle = "#00ff00";
+            canvasCtx.shadowColor = "#00ff00";
+            canvasCtx.shadowBlur = 10;
+            canvasCtx.fill();
+
+            // 显示无人机编号
+            canvasCtx.fillStyle = "black";
+            canvasCtx.font = "12px Arial";
+            canvasCtx.fillText(serialNumber.slice(-4), canvasX + 10, canvasY - 10);
+
+            // 更新信息
+            document.getElementById('position-info').textContent = 
+                `无人机 ${serialNumber} 实时位置：格子(${gridX}, ${gridY}) | 最后更新：${new Date().toLocaleTimeString()}`;
+        }
+
+        // 页面加载初始化
+        window.onload = function() {
+            initCanvas();
+            loadMapImage();
+            
+            // 初始化侧边栏
+            getActiveDrones();
+            
+            // 每5秒更新一次无人机信息
+            setInterval(getActiveDrones, 5000);
+            
+            // 启动碰撞检测定时器（每2秒检测一次）
+            collisionCheckInterval = setInterval(() => {
+                getActiveDrones(); // 这会触发碰撞检测
+            }, 2000);
+            
+            // 等待地图加载完成后显示所有无人机
+            setTimeout(() => {
+                if (canvasCtx) {
+                    showAllDrones();
+                }
+            }, 3000); // 延长到3秒，确保地图加载完成
+        };
+    </script>
+</body>
+</html>

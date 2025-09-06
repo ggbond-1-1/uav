@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 from users.models import CustomUser
 
 
@@ -11,18 +12,18 @@ class Drone(models.Model):
 
     model = models.CharField(max_length=255)
     manufacturer = models.CharField(max_length=255)
-    serial_number = models.CharField(max_length=255, unique=True)
+    serial_number = models.CharField(max_length=255, unique=True) 
     purchase_date = models.DateField()
     warranty_expiry = models.DateField()
-    max_takeoff_weight = models.FloatField()
-    max_flight_speed = models.FloatField()
-    flight_time = models.IntegerField()
+    max_takeoff_weight = models.FloatField(validators=[MinValueValidator(0.01, message='最大起飞重量必须大于0')])
+    max_flight_speed = models.FloatField(validators=[MinValueValidator(0.01, message='最大飞行速度必须大于0')])
+    flight_time = models.IntegerField(default=0)  # 添加flight_time字段
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     current_status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_stock')
     total_flight_time = models.IntegerField(default=0)
     current_load = models.FloatField(default=0)  # 新增当前负载字段
     return_time = models.DateTimeField(null=True, blank=True)
-    serial_number = models.CharField(max_length=100, unique=True)
+    endurance_time = models.IntegerField(validators=[MinValueValidator(1, message='续航时间必须大于0')], default=1) 
     task_count = models.IntegerField(default=0)
     def __str__(self):
         return self.serial_number
@@ -54,4 +55,22 @@ class FlightRecord(models.Model):
 
     class Meta:
         db_table = 'flight records'
+
+class DronePosition(models.Model):
+    """无人机实时位置记录模型"""
+    drone = models.ForeignKey(Drone, on_delete=models.CASCADE, related_name='positions')
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    altitude = models.FloatField(default=0)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    task_id = models.CharField(max_length=100, null=True, blank=True)
+    speed = models.FloatField(null=True, blank=True)
+    heading = models.FloatField(null=True, blank=True)
+    
+    class Meta:
+        db_table = 'drone_position'
+        ordering = ['-timestamp']
+        
+    def __str__(self):
+        return f"{self.drone.serial_number} - {self.timestamp}"
 # Create your models here.

@@ -28,5 +28,5 @@ urlpatterns = [
     path('goods/', include(('goods.urls', 'goods'), namespace='goods')),
     path('logistics/', include(('logistics.urls', 'logistics'), namespace='logistics')),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('', include('core.urls')),
+    path('', include(('core.urls', 'core'), namespace='core')),
 ]
